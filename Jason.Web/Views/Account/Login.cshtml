@@ -1,0 +1,47 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    ViewData["Wide"] = true;
+}
+
+<div class="jx-split">
+    <section class="jx-split-form">
+        <h1>Inicia sesión</h1>
+        <p class="jx-muted">Para guardar fichas, descargar e importar archivos.</p>
+
+        <form asp-action="Login" method="post" class="jx-form" novalidate>
+            <input type="hidden" asp-for="ReturnUrl" />
+            <div asp-validation-summary="ModelOnly" class="jx-alert jx-alert-err"></div>
+
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="jx-input" autocomplete="username" autofocus />
+            <span asp-validation-for="Email" class="jx-err"></span>
+
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="jx-input" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="jx-err"></span>
+
+            <div style="margin-top: 1.75rem;">
+                <button type="submit" class="jx-btn jx-btn-full">Entrar</button>
+            </div>
+        </form>
+
+        <p class="jx-muted" style="margin-top: 1.25rem;">
+            ¿Primera vez? <a asp-action="Register">Crea tu cuenta</a>
+        </p>
+    </section>
+
+    <aside class="jx-split-panel">
+        <h2>Tu rol decide qué puedes hacer</h2>
+        <div class="jx-roles">
+            <div><b>Visitante</b><span>Ver el contenido de las fuentes.</span></div>
+            <div><b>Usuario</b><span>Guardar fichas, descargarlas en JSON e importar archivos.</span></div>
+            <div><b>Admin</b><span>Todo lo anterior, agregar fuentes, asignar roles y guardar secrets.</span></div>
+        </div>
+        <div class="jx-brace" aria-hidden="true">{ }</div>
+    </aside>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

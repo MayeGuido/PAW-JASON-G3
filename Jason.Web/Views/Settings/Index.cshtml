@@ -1,0 +1,117 @@
+@model SettingsViewModel
+@{
+    ViewData["Title"] = "Configuración";
+}
+
+<h1 style="font-size: 3rem; margin-bottom: 2rem;">Configuración</h1>
+
+@if (ViewBag.Error is string error)
+{
+    <div class="jx-alert jx-alert-err" role="alert">@error</div>
+}
+
+<div class="jx-two">
+    <section>
+        <h2>Roles</h2>
+        <p class="jx-muted">Quién puede administrar y quién solo guardar.</p>
+
+        <table class="jx-table">
+            <thead>
+                <tr><th>Persona</th><th>Rol</th></tr>
+            </thead>
+            <tbody>
+                @if (!Model.Users.Any())
+                {
+                    <tr><td colspan="2" class="jx-muted">No hay usuarios para mostrar.</td></tr>
+                }
+                @foreach (var user in Model.Users)
+                {
+                    var isMe = user.Id == Model.CurrentUserId;
+                    <tr>
+                        <td>
+                            <div>@(user.DisplayName ?? user.Email)@if (isMe) { <span class="jx-tag">tú</span> }</div>
+                            @if (!string.IsNullOrEmpty(user.DisplayName))
+                            {
+                                <div class="jx-muted" style="font-size: 0.85rem;">@user.Email</div>
+                            }
+                        </td>
+                        <td>
+                            <form asp-action="ChangeRole" method="post" class="jx-inline">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <select name="role" class="jx-select jx-select-sm" style="width: 7rem;" disabled="@isMe" aria-label="Rol de @user.Email">
+                                    <option value="@Roles.Admin" selected="@(user.Role == Roles.Admin)">Admin</option>
+                                    <option value="@Roles.User" selected="@(user.Role == Roles.User)">Usuario</option>
+                                </select>
+                                <button type="submit" class="jx-btn jx-btn-out jx-btn-sm" disabled="@isMe">Guardar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <p class="jx-muted" style="font-size: 0.85rem; margin-top: 0.75rem;">No puedes cambiar tu propio rol, y siempre debe quedar al menos un Admin.</p>
+    </section>
+
+    <section>
+        <h2>Secrets de las fuentes</h2>
+        <p class="jx-muted">Se guardan cifrados. Nunca se muestran completos ni salen en los archivos JSON.</p>
+
+        <table class="jx-table">
+            <thead>
+                <tr><th>Nombre</th><th>Valor</th><th></th></tr>
+            </thead>
+            <tbody>
+                @if (!Model.Secrets.Any())
+                {
+                    <tr><td colspan="3" class="jx-muted">Todavía no hay secrets. Agrega el primero abajo.</td></tr>
+                }
+                @foreach (var secret in Model.Secrets)
+                {
+                    var sourceName = Model.Sources.FirstOrDefault(s => s.Id == secret.SourceId)?.Name;
+                    <tr>
+                        <td>
+                            <div class="jx-mono">@secret.Key</div>
+                            @if (sourceName is not null)
+                            {
+                                <div class="jx-muted" style="font-size: 0.85rem;">Fuente: @sourceName</div>
+                            }
+                        </td>
+                        <td class="jx-mono">@secret.MaskedValue</td>
+                        <td style="text-align: right;">
+                            <form asp-action="DeleteSecret" method="post" class="jx-inline"
+                                  onsubmit="return confirm('¿Eliminar el secret @secret.Key?');">
+                                <input type="hidden" name="key" value="@secret.Key" />
+                                <button type="submit" class="jx-btn jx-btn-danger jx-btn-sm">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="jx-card">
+            <h3>Agregar o cambiar un secret</h3>
+            <p class="jx-muted" style="font-size: 0.9rem; margin-bottom: 0;">Si el nombre ya existe, se reemplaza su valor.</p>
+            <form asp-action="SaveSecret" method="post" class="jx-form">
+                <label for="Key">Nombre</label>
+                <input id="Key" name="Key" class="jx-input" placeholder="GUARDIAN_API_KEY" maxlength="200" required />
+
+                <label for="Value">Valor</label>
+                <input id="Value" name="Value" type="password" class="jx-input" autocomplete="off" maxlength="2000" required />
+
+                <label for="SourceId">Fuente (opcional)</label>
+                <select id="SourceId" name="SourceId" class="jx-select">
+                    <option value="">Ninguna en particular</option>
+                    @foreach (var source in Model.Sources)
+                    {
+                        <option value="@source.Id">@source.Name</option>
+                    }
+                </select>
+
+                <div style="margin-top: 1.25rem;">
+                    <button type="submit" class="jx-btn">Guardar secret</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>

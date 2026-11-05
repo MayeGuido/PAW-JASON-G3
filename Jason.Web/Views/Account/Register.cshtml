@@ -1,0 +1,55 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Crear cuenta";
+    ViewData["Wide"] = true;
+}
+
+<div class="jx-split">
+    <section class="jx-split-form">
+        <h1>Crea tu cuenta</h1>
+        <p class="jx-muted">Las cuentas nuevas empiezan con el rol Usuario.</p>
+
+        <form asp-action="Register" method="post" class="jx-form" novalidate>
+            <div asp-validation-summary="ModelOnly" class="jx-alert jx-alert-err"></div>
+
+            <label asp-for="DisplayName"></label>
+            <input asp-for="DisplayName" class="jx-input" autocomplete="name" autofocus />
+            <span asp-validation-for="DisplayName" class="jx-err"></span>
+
+            <label asp-for="Email"></label>
+            <input asp-for="Email" class="jx-input" autocomplete="username" />
+            <span asp-validation-for="Email" class="jx-err"></span>
+
+            <label asp-for="Password"></label>
+            <input asp-for="Password" class="jx-input" autocomplete="new-password" />
+            <span class="jx-muted" style="font-size: 0.85rem;">Mínimo 8 caracteres, con mayúscula, minúscula y número.</span>
+            <span asp-validation-for="Password" class="jx-err"></span>
+
+            <label asp-for="ConfirmPassword"></label>
+            <input asp-for="ConfirmPassword" class="jx-input" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmPassword" class="jx-err"></span>
+
+            <div style="margin-top: 1.75rem;">
+                <button type="submit" class="jx-btn jx-btn-full">Crear cuenta</button>
+            </div>
+        </form>
+
+        <p class="jx-muted" style="margin-top: 1.25rem;">
+            ¿Ya tienes cuenta? <a asp-action="Login">Inicia sesión</a>
+        </p>
+    </section>
+
+    <aside class="jx-split-panel">
+        <h2>Una cuenta para guardar y compartir</h2>
+        <div class="jx-roles">
+            <div><b>Guarda</b><span>Elige qué fichas se guardan en la base de datos.</span></div>
+            <div><b>Descarga</b><span>Baja una ficha como JSON para otra app.</span></div>
+            <div><b>Importa</b><span>Sube el archivo de otro grupo y velo aquí.</span></div>
+        </div>
+        <div class="jx-brace" aria-hidden="true">{ }</div>
+    </aside>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

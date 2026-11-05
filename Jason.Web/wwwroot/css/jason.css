@@ -1,0 +1,307 @@
+/* Estilos de Jason. Colores y tipografías salen del diseño (docs/diseno).
+   Las clases propias empiezan con "jx-" para no chocar con Bootstrap. */
+
+:root {
+    --ink: #12141c;
+    --ice: #edf0f7;
+    --card: #ffffff;
+    --line: #d3d9e8;
+    --muted: #586079;
+    --blue: #2236d9;
+    --blue-dark: #1a2bb0;
+    --blue-soft: #e3e7fc;
+    --yellow: #ffc93c;
+    --red: #e5412d;
+    --green: #0e9f6e;
+    --radius: 8px;
+}
+
+html { font-size: 16px; }
+
+body {
+    margin: 0;
+    background: var(--ice);
+    color: var(--ink);
+    font-family: 'Instrument Sans', system-ui, 'Segoe UI', Arial, sans-serif;
+    line-height: 1.5;
+}
+
+h1, h2, h3, .jx-display {
+    font-family: 'Bricolage Grotesque', system-ui, 'Segoe UI', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+}
+
+a { color: var(--blue); }
+
+/* ---------- Barra superior ---------- */
+.jx-bar {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 0 2rem;
+    min-height: 4.5rem;
+    background: var(--ice);
+    border-bottom: 1.5px solid var(--ink);
+}
+
+.jx-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 1.6rem;
+    letter-spacing: -0.03em;
+}
+
+.jx-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 7px;
+    background: var(--yellow);
+    border: 1.5px solid var(--ink);
+    font-size: 0.9rem;
+    letter-spacing: -0.04em;
+}
+
+.jx-nav { display: flex; gap: 1.5rem; flex: 1; flex-wrap: wrap; }
+
+.jx-nav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.25rem 0;
+    border-bottom: 3px solid transparent;
+}
+
+.jx-nav a:hover { border-bottom-color: var(--line); }
+.jx-nav a.on { border-bottom-color: var(--blue); }
+
+.jx-user { display: flex; align-items: center; gap: 0.75rem; }
+
+.jx-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    height: 2.4rem;
+    padding: 0 0.9rem 0 0.4rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.jx-pill b {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    background: var(--yellow);
+    font-size: 0.8rem;
+}
+
+/* ---------- Contenedores ---------- */
+.jx-main { max-width: 1180px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+.jx-wide { padding: 0; }
+
+.jx-footer {
+    border-top: 1.5px solid var(--ink);
+    margin: 0 2rem;
+    padding: 1rem 0 2rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.jx-muted { color: var(--muted); }
+
+/* ---------- Botones ---------- */
+.jx-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.75rem;
+    padding: 0 1.4rem;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--blue);
+    background: var(--blue);
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.jx-btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: #fff; }
+.jx-btn-full { width: 100%; height: 3.1rem; }
+.jx-btn-sm { height: 2.1rem; padding: 0 0.9rem; font-size: 0.85rem; }
+
+.jx-btn-out { background: transparent; color: var(--ink); border-color: var(--ink); }
+.jx-btn-out:hover { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+.jx-btn-danger { background: transparent; color: var(--red); border-color: var(--red); }
+.jx-btn-danger:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+.jx-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+/* Bootstrap: que sus botones y tablas usen los mismos colores */
+.btn-primary {
+    --bs-btn-bg: var(--blue);
+    --bs-btn-border-color: var(--blue);
+    --bs-btn-hover-bg: var(--blue-dark);
+    --bs-btn-hover-border-color: var(--blue-dark);
+    --bs-btn-active-bg: var(--blue-dark);
+    --bs-btn-active-border-color: var(--blue-dark);
+}
+
+/* ---------- Formularios ---------- */
+.jx-form label {
+    display: block;
+    margin: 1.25rem 0 0.35rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.jx-input, .jx-select {
+    display: block;
+    width: 100%;
+    height: 3rem;
+    padding: 0 0.85rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.jx-input:focus, .jx-select:focus {
+    outline: 3px solid var(--blue-soft);
+    border-color: var(--blue);
+}
+
+.jx-select-sm, .jx-input-sm { height: 2.1rem; font-size: 0.9rem; padding: 0 0.6rem; }
+
+.jx-err { display: block; color: var(--red); font-size: 0.85rem; margin-top: 0.25rem; }
+.input-validation-error { border-color: var(--red) !important; }
+
+/* ---------- Avisos ---------- */
+.jx-alert {
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    margin: 0 0 1rem;
+    background: #fff;
+    font-size: 0.95rem;
+}
+
+.jx-alert-ok { border-color: var(--green); background: #e8f7f1; }
+.jx-alert-err { border-color: var(--red); background: #fdecea; }
+.jx-alert ul { margin: 0; padding-left: 1.1rem; }
+.validation-summary-valid { display: none; }
+
+/* ---------- Login y registro (pantalla partida) ---------- */
+.jx-split { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 4.5rem - 1.5px); }
+.jx-split-form { padding: 5rem 7rem; }
+.jx-split-form h1 { font-size: 3.2rem; margin: 0 0 0.5rem; }
+
+.jx-split-panel {
+    position: relative;
+    overflow: hidden;
+    background: var(--blue);
+    color: #fff;
+    padding: 4rem 5rem;
+}
+
+.jx-split-panel h2 { font-size: 2.5rem; margin: 0 0 2rem; max-width: 30rem; }
+
+.jx-brace {
+    position: absolute;
+    right: -2rem;
+    bottom: -12rem;
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 35rem;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    color: var(--yellow);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+}
+
+.jx-roles {
+    position: relative;
+    z-index: 1;
+    background: #fff;
+    color: var(--ink);
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+}
+
+.jx-roles div { display: grid; grid-template-columns: 8rem 1fr; gap: 0.75rem; padding: 1rem 1.25rem; }
+.jx-roles div + div { border-top: 1.5px solid var(--line); }
+.jx-roles b { font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 1.1rem; }
+
+/* ---------- Tablas ---------- */
+.jx-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.jx-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-bottom: 1.5px solid var(--ink);
+}
+
+.jx-table td { padding: 0.8rem 1rem; border-bottom: 1.5px solid var(--line); vertical-align: middle; }
+.jx-table tr:last-child td { border-bottom: 0; }
+.jx-inline { display: inline-flex; gap: 0.5rem; align-items: center; margin: 0; }
+.jx-mono { font-family: 'IBM Plex Mono', Consolas, monospace; font-size: 0.9rem; }
+
+.jx-tag {
+    display: inline-block;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: var(--blue-soft);
+    color: var(--blue);
+}
+
+/* ---------- Configuración ---------- */
+.jx-two { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; align-items: start; }
+.jx-two h2 { font-size: 1.6rem; margin: 0 0 0.35rem; }
+.jx-card { background: #fff; border: 1.5px solid var(--ink); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-top: 1.25rem; }
+.jx-card h3 { font-size: 1.15rem; margin: 0 0 0.25rem; }
+
+/* ---------- Pantalla de mensaje (acceso denegado) ---------- */
+.jx-center { max-width: 34rem; margin: 5rem auto; text-align: left; }
+.jx-center h1 { font-size: 3rem; margin-bottom: 0.75rem; }
+
+@media (max-width: 900px) {
+    .jx-bar { flex-wrap: wrap; gap: 0.75rem 1.5rem; padding: 0.75rem 1rem; }
+    .jx-split, .jx-two { grid-template-columns: 1fr; }
+    .jx-split-form { padding: 2.5rem 1.5rem; }
+    .jx-split-panel { padding: 2.5rem 1.5rem; min-height: 22rem; }
+    .jx-brace { font-size: 20rem; bottom: -7rem; }
+    .jx-main { padding: 1.5rem 1rem 3rem; }
+}

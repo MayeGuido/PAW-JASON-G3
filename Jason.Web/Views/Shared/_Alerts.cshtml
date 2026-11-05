@@ -1,0 +1,9 @@
+@* Mensajes de una acción anterior (TempData). Se ven como aviso en la página y, si SweetAlert2 cargó, como notificación flotante (ver site.js). *@
+@if (TempData["Success"] is string success)
+{
+    <div class="jx-alert jx-alert-ok" role="status" data-flash="success">@success</div>
+}
+@if (TempData["Error"] is string error)
+{
+    <div class="jx-alert jx-alert-err" role="alert" data-flash="error">@error</div>
+}

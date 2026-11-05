@@ -1,0 +1,64 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Active(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "on" : "";
+    var userName = User.Identity?.Name ?? string.Empty;
+    var initial = userName.Length > 0 ? userName[..1].ToUpperInvariant() : "?";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Jason</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700;800&family=Instrument+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/jason.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="jx-bar">
+        <a class="jx-logo" asp-controller="Home" asp-action="Index"><span class="jx-mark">{ }</span>Jason</a>
+        <nav class="jx-nav">
+            <a class="@Active("Home")" asp-controller="Home" asp-action="Index">Inicio</a>
+            <a class="@Active("Sources")" asp-controller="Sources" asp-action="Index">Fuentes</a>
+            @if (User.IsInRole(Roles.Admin))
+            {
+                <a class="@Active("Settings")" asp-controller="Settings" asp-action="Index">Configuración</a>
+            }
+        </nav>
+        <div class="jx-user">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <span class="jx-pill"><b>@initial</b>@userName, @(User.IsInRole(Roles.Admin) ? "Admin" : "Usuario")</span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="jx-inline">
+                    <button type="submit" class="jx-btn jx-btn-out jx-btn-sm">Cerrar sesión</button>
+                </form>
+            }
+            else
+            {
+                <a class="jx-btn jx-btn-out jx-btn-sm" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
+            }
+        </div>
+    </header>
+
+    <main role="main" class="@(ViewData["Wide"] is true ? "jx-wide" : "jx-main")">
+        <partial name="_Alerts" />
+        @RenderBody()
+    </main>
+
+    @if (ViewData["Wide"] is not true)
+    {
+        <footer class="jx-footer">
+            <span>Jason, proyecto final</span>
+            <span>Programación Avanzada Web SC-701</span>
+        </footer>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

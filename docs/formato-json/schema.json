@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paw-dashboard/schema/v1.0/dashboard-export.json",
+  "title": "Formato común de intercambio del Dashboard PAW",
+  "description": "Versión 1.0. Formato acordado entre los grupos para exportar e importar contenido del dashboard.",
+  "type": "object",
+  "required": [
+    "version",
+    "sources"
+  ],
+  "properties": {
+    "version": {
+      "description": "Versión del formato. Para esta versión siempre es \"1.0\".",
+      "type": "string",
+      "const": "1.0"
+    },
+    "exportedAt": {
+      "description": "Fecha y hora en que se generó el archivo, ISO 8601 en UTC (termina en Z).",
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    },
+    "exportedBy": {
+      "description": "Nombre del grupo que generó el archivo.",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "sources": {
+      "description": "Fuentes (APIs) incluidas en el archivo.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "$defs": {
+    "isoUtcDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "noticias",
+        "memes",
+        "gifs",
+        "imagenes",
+        "videos",
+        "musica",
+        "libros",
+        "clima",
+        "deportes",
+        "tecnologia",
+        "entretenimiento",
+        "finanzas",
+        "ciencia",
+        "otros"
+      ]
+    },
+    "mediaType": {
+      "type": "string",
+      "enum": [
+        "text",
+        "image",
+        "gif",
+        "video",
+        "audio"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "items"
+      ],
+      "properties": {
+        "id": {
+          "description": "Identificador corto de la fuente, en minúscula y sin espacios. Ej: \"giphy\".",
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$"
+        },
+        "name": {
+          "description": "Nombre visible de la fuente.",
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "description": "Endpoint o sitio de la API.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "category": {
+          "description": "Categoría principal de la fuente.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/category"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "mediaType",
+        "createdAt"
+      ],
+      "properties": {
+        "id": {
+          "description": "Identificador único del item dentro de su fuente.",
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "description": "Título o texto principal del item.",
+          "type": "string"
+        },
+        "mediaType": {
+          "$ref": "#/$defs/mediaType"
+        },
+        "createdAt": {
+          "description": "Fecha del contenido, ISO 8601 UTC.",
+          "$ref": "#/$defs/isoUtcDate"
+        },
+        "category": {
+          "description": "Categoría del item. Si no viene, se usa la de la fuente.",
+          "oneOf": [
+            {
+              "$ref": "#/$defs/category"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "url": {
+          "description": "Enlace al contenido original.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "thumbnail": {
+          "description": "Enlace a una imagen de vista previa.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "description": "Resumen corto.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data": {
+          "description": "Respuesta original de la API como objeto (nunca como string).",
+          "type": [
+            "object",
+            "null"
+          ]
+        }
+      }
+    }
+  }
+}

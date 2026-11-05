@@ -1,0 +1,91 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-10-14T22:00:00Z",
+  "exportedBy": "Grupo de ejemplo",
+  "sources": [
+    {
+      "id": "hacienda-tc",
+      "name": "Tipo de cambio Hacienda",
+      "url": "https://api.hacienda.go.cr/indicadores/tc",
+      "category": "finanzas",
+      "items": [
+        {
+          "id": "tc-2026-10-14",
+          "title": "Dólar: compra ₡449,11 / venta ₡454,48",
+          "mediaType": "text",
+          "createdAt": "2026-10-14T06:00:00Z",
+          "url": "https://api.hacienda.go.cr/indicadores/tc",
+          "thumbnail": null,
+          "description": "Tipo de cambio de referencia del día",
+          "data": {
+            "dolar": {
+              "venta": {
+                "fecha": "2026-10-14",
+                "valor": 454.48
+              },
+              "compra": {
+                "fecha": "2026-10-14",
+                "valor": 449.11
+              }
+            },
+            "euro": {
+              "fecha": "2026-10-13",
+              "dolares": 1.1177,
+              "colones": 507.97
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "giphy",
+      "name": "GIPHY",
+      "url": "https://api.giphy.com/v1/gifs/trending",
+      "category": "gifs",
+      "items": [
+        {
+          "id": "giphy-abc123",
+          "title": "Gato bailando",
+          "mediaType": "gif",
+          "createdAt": "2026-10-12T15:20:00Z",
+          "url": "https://giphy.com/gifs/abc123",
+          "thumbnail": "https://media.giphy.com/media/abc123/200w.gif",
+          "description": null,
+          "data": {
+            "id": "abc123",
+            "type": "gif",
+            "rating": "g",
+            "images": {
+              "original": {
+                "url": "https://media.giphy.com/media/abc123/giphy.gif"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "reddit-memes",
+      "name": "Reddit r/memes",
+      "url": "https://www.reddit.com/r/memes/top.json",
+      "category": "memes",
+      "items": [
+        {
+          "id": "reddit-1x2y3z",
+          "title": "Cuando compila a la primera",
+          "mediaType": "image",
+          "createdAt": "2026-10-13T09:45:00Z",
+          "category": "memes",
+          "url": "https://www.reddit.com/r/memes/comments/1x2y3z",
+          "thumbnail": "https://i.redd.it/1x2y3z.jpg",
+          "description": null,
+          "data": {
+            "id": "1x2y3z",
+            "subreddit": "memes",
+            "ups": 15230
+          }
+        }
+      ]
+    }
+  ]
+}
