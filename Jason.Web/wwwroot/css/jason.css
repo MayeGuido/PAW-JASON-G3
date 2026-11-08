@@ -120,7 +120,10 @@ a { color: var(--blue); }
     color: var(--muted);
     font-size: 0.9rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .jx-muted { color: var(--muted); }
@@ -142,7 +145,19 @@ a { color: var(--blue); }
     cursor: pointer;
 }
 
-.jx-btn:hover { background: var(--blue-dark); border-color: var(--blue-dark); color: #fff; }
+.jx-btn {
+    transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.jx-btn:hover {
+    transform: translateY(-2px);
+    background: var(--blue-dark);
+    border-color: var(--blue-dark);
+    box-shadow: 0 6px 14px rgba(34, 54, 217, 0.18);
+    color: #fff;
+}
+
+.jx-btn:active { transform: translateY(0); }
 .jx-btn-full { width: 100%; height: 3.1rem; }
 .jx-btn-sm { height: 2.1rem; padding: 0 0.9rem; font-size: 0.85rem; }
 
@@ -297,11 +312,325 @@ a { color: var(--blue); }
 .jx-center { max-width: 34rem; margin: 5rem auto; text-align: left; }
 .jx-center h1 { font-size: 3rem; margin-bottom: 0.75rem; }
 
+/* ---------- Administración de fuentes (Tramo B) ---------- */
+.jx-source-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.jx-source-heading h1 { font-size: 3rem; margin: 0.15rem 0 0.5rem; }
+.jx-source-heading p { margin: 0; }
+
+.jx-eyebrow {
+    margin: 0;
+    color: var(--blue);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.jx-source-count {
+    flex: 0 0 auto;
+    padding: 0.45rem 0.9rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 999px;
+    background: #fff;
+    font-weight: 600;
+}
+
+.jx-source-admin {
+    margin-bottom: 2rem;
+    padding: 1.1rem 1.25rem 1.25rem;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    background: var(--yellow);
+}
+
+.jx-source-admin-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+}
+
+.jx-source-admin-title h2 { margin: 0.1rem 0 0; font-size: 1.35rem; }
+.jx-source-admin-title .jx-eyebrow { color: var(--ink); opacity: 0.7; }
+.jx-source-admin-title > span { font-size: 0.85rem; font-weight: 600; }
+
+.jx-source-form {
+    display: grid;
+    grid-template-columns: 1.2fr 2.25fr 0.75fr 0.95fr auto;
+    gap: 0.75rem;
+    align-items: end;
+}
+
+.jx-source-form label { display: block; margin: 0; }
+.jx-source-form label > span { display: block; margin-bottom: 0.3rem; font-size: 0.78rem; font-weight: 700; }
+.jx-source-form small { font-weight: 500; }
+.jx-source-add { height: 3rem; border-color: var(--ink); background: var(--ink); white-space: nowrap; }
+.jx-source-add:hover { border-color: var(--blue); background: var(--blue); }
+.jx-source-description-field { grid-column: 1 / -1; }
+
+.jx-source-note {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    border-left: 5px solid var(--blue);
+    background: var(--blue-soft);
+    font-weight: 500;
+}
+
+.jx-source-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.jx-source-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 18rem;
+    padding: 1.2rem;
+    border: 1.5px solid var(--ink);
+    border-left: 12px solid var(--blue);
+    border-radius: var(--radius);
+    background: #fff;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition:
+        transform 300ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 300ms ease,
+        border-color 300ms ease,
+        opacity 300ms ease,
+        filter 300ms ease;
+}
+
+.jx-source-card::before, .jx-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+        circle 180px at var(--spot-x, 50%) var(--spot-y, 50%),
+        rgba(255, 201, 60, 0.28),
+        rgba(34, 54, 217, 0.08) 38%,
+        transparent 72%
+    );
+    opacity: 0;
+    transition: opacity 280ms ease;
+    pointer-events: none;
+}
+
+.jx-source-card:hover::before, .jx-card:hover::before { opacity: 1; }
+.jx-source-card > *, .jx-card > * { position: relative; z-index: 1; }
+.jx-card { position: relative; overflow: hidden; }
+
+.jx-source-card:hover {
+    z-index: 2;
+    border-color: var(--blue);
+    transform: perspective(900px) translateY(-8px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.018);
+    box-shadow: 0 20px 38px rgba(18, 20, 28, 0.18), 0 0 0 3px rgba(34, 54, 217, 0.08);
+}
+
+.jx-source-card::after {
+    content: '';
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 11px;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--yellow), var(--blue), transparent);
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+}
+
+.jx-source-card:hover::after {
+    animation: jx-card-scan 1.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.jx-source-grid:has(.jx-source-card:hover) .jx-source-card:not(:hover) {
+    opacity: 0.68;
+    filter: saturate(0.72);
+}
+
+.jx-source-card:hover .jx-source-icon {
+    transform: rotate(-8deg) translateZ(18px) scale(1.08);
+    box-shadow: 4px 4px 0 rgba(34, 54, 217, 0.18);
+}
+
+.jx-source-card:hover .jx-source-link {
+    background: var(--blue-soft);
+    transform: translateZ(10px);
+}
+
+.jx-source-card-top { display: flex; gap: 0.85rem; align-items: flex-start; }
+.jx-source-card-top h2 { margin: 0 0 0.35rem; font-size: 1.35rem; }
+.jx-source-card-top p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+
+.jx-source-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 7px;
+    background: var(--yellow);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 300ms ease;
+}
+
+.jx-source-link {
+    display: block;
+    margin: 1.25rem 0;
+    padding: 0.65rem 0.75rem;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--ice);
+    font-family: 'IBM Plex Mono', Consolas, monospace;
+    font-size: 0.8rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: transform 300ms ease, background-color 300ms ease;
+}
+
+.jx-source-meta { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.jx-source-meta span {
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    background: var(--blue-soft);
+    color: var(--blue-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.jx-source-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: auto;
+    padding-top: 1.25rem;
+}
+
+.jx-source-empty {
+    padding: 4rem 2rem;
+    border: 1.5px dashed var(--ink);
+    border-radius: var(--radius);
+    text-align: center;
+}
+
+.jx-source-empty h2, .jx-source-empty p { margin: 0; }
+.jx-source-empty p { margin-top: 0.4rem; color: var(--muted); }
+
+/* ---------- Movimiento suave ---------- */
+.jx-motion-ready .jx-reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+        opacity 760ms cubic-bezier(0.16, 1, 0.3, 1),
+        transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+}
+
+.jx-motion-ready .jx-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.jx-motion-ready .jx-source-card.jx-reveal.is-visible:hover {
+    transform: perspective(900px) translateY(-8px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.018);
+}
+
+@keyframes jx-card-scan {
+    0% { opacity: 0; transform: translateY(-4px) scaleX(0.25); }
+    35% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(17.8rem) scaleX(1); }
+}
+
+.jx-logo .jx-mark {
+    transition: transform 220ms ease, background-color 220ms ease;
+}
+
+.jx-logo:hover .jx-mark {
+    transform: rotate(-7deg) scale(1.06);
+    background: #ffd86e;
+}
+
+.jx-cursor-dot, .jx-cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform;
+    transition: opacity 180ms ease, width 220ms ease, height 220ms ease, background-color 220ms ease;
+}
+
+.jx-cursor-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--blue);
+    box-shadow: 0 0 10px rgba(34, 54, 217, 0.45);
+}
+
+.jx-cursor-ring {
+    width: 32px;
+    height: 32px;
+    z-index: 9998;
+    border: 1.5px solid rgba(34, 54, 217, 0.4);
+    background: rgba(255, 201, 60, 0.08);
+}
+
+.jx-cursor-dot.is-visible, .jx-cursor-ring.is-visible { opacity: 1; }
+
+.jx-cursor-ring.is-active {
+    width: 48px;
+    height: 48px;
+    border-color: rgba(34, 54, 217, 0.68);
+    background: rgba(255, 201, 60, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .jx-cursor-dot, .jx-cursor-ring { display: none !important; }
+    .jx-source-grid:has(.jx-source-card:hover) .jx-source-card:not(:hover) { opacity: 1; filter: none; }
+}
+
 @media (max-width: 900px) {
+    .jx-cursor-dot, .jx-cursor-ring { display: none; }
     .jx-bar { flex-wrap: wrap; gap: 0.75rem 1.5rem; padding: 0.75rem 1rem; }
     .jx-split, .jx-two { grid-template-columns: 1fr; }
     .jx-split-form { padding: 2.5rem 1.5rem; }
     .jx-split-panel { padding: 2.5rem 1.5rem; min-height: 22rem; }
     .jx-brace { font-size: 20rem; bottom: -7rem; }
     .jx-main { padding: 1.5rem 1rem 3rem; }
+    .jx-source-form { grid-template-columns: 1fr 1fr; }
+    .jx-source-url-field, .jx-source-description-field { grid-column: 1 / -1; }
+    .jx-source-add { width: 100%; }
+    .jx-source-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 620px) {
+    .jx-source-heading, .jx-source-admin-title { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
+    .jx-source-heading h1 { font-size: 2.35rem; }
+    .jx-source-form, .jx-source-grid { grid-template-columns: 1fr; }
+    .jx-source-url-field, .jx-source-description-field { grid-column: auto; }
 }
