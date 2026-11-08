@@ -9,6 +9,7 @@ public interface ISourceService
 {
     Task<IEnumerable<SourceDto>> GetAllAsync();
     Task<SourceDto> CreateAsync(CreateSourceDto dto);
+    Task DeleteAsync(int id);
 }
 
 public class SourceService : ISourceService
@@ -42,6 +43,13 @@ public class SourceService : ISourceService
 
         await _repository.CreateAsync(source);
         return ToDto(source);
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+        var source = await _repository.FindAsync(id)
+            ?? throw ApiException.NotFound("La fuente indicada no existe.");
+        await _repository.DeleteAsync(source);
     }
 
     // La API nunca devuelve la entidad de EF, solo el DTO

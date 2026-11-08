@@ -16,6 +16,20 @@ public interface ISecretService
     // Para uso interno de la API (por ejemplo al llamar a una fuente que pide API key).
     // El valor en claro nunca sale por un endpoint.
     Task<string?> GetValueAsync(string key);
+    Task<SourceSecretValue?> GetForSourceAsync(int sourceId);
+}
+
+// Objeto de uso interno. Nunca se devuelve desde un controller.
+public class SourceSecretValue
+{
+    public string Key { get; set; }
+    public string Value { get; set; }
+
+    public SourceSecretValue(string key, string value)
+    {
+        Key = key;
+        Value = value;
+    }
 }
 
 public class SecretService : ISecretService
@@ -83,6 +97,16 @@ public class SecretService : ISecretService
     {
         var existing = await _settings.FindByKeyAsync(key);
         return existing is null ? null : _protector.Unprotect(existing.ValueEncrypted);
+    }
+
+    public async Task<SourceSecretValue?> GetForSourceAsync(int sourceId)
+    {
+        var existing = await _settings.FindBySourceIdAsync(sourceId);
+        if (existing == null)
+            return null;
+
+        string decryptedValue = _protector.Unprotect(existing.ValueEncrypted);
+        return new SourceSecretValue(existing.Key, decryptedValue);
     }
 
     private SecretDto ToDto(Setting setting)

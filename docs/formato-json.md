@@ -33,6 +33,8 @@ Todos son compatibles: el formato ignora los campos que no conoce.
 5. **Categoría desconocida al importar:** guardarla como `otros` en vez de rechazar todo el archivo.
 6. **`data` siempre objeto:** XML convertido a objeto, y HTML como `{ "html": "..." }`.
 
+Para HTML, cada enlace útil se convierte en una ficha. `data` conserva el fragmento original del enlace y sus valores normalizados con la forma `{ "html": "<a ...>...</a>", "href": "...", "title": "..." }`. Esto evita guardar toda la página repetida dentro de cada ficha y mantiene la respuesta original relevante para esa ficha.
+
 ## Reglas que no se negocian
 
 - Nunca incluir API keys, tokens ni contraseñas en el archivo.

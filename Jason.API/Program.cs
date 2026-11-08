@@ -66,6 +66,10 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient("Feed", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(20);
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Falta la cadena de conexión DefaultConnection en appsettings.");
@@ -163,6 +167,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 builder.Services.AddScoped<ISourceService, SourceService>();
+builder.Services.AddScoped<IFeedService, FeedService>();
 
 // Parsers (Strategy + Factory)
 builder.Services.AddSingleton<IContentParser, JsonContentParser>();

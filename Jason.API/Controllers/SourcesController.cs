@@ -30,4 +30,13 @@ public class SourcesController : ControllerBase
         var created = await _sourceService.CreateAsync(dto);
         return CreatedAtAction(nameof(GetAll), new { id = created.Id }, created);
     }
+
+    // Solo el Admin elimina fuentes. SourceItems se borran en cascada por la relación de la base.
+    [HttpDelete("{id:int}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        await _sourceService.DeleteAsync(id);
+        return NoContent();
+    }
 }
