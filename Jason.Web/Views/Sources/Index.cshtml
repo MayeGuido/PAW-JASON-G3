@@ -1,35 +1,113 @@
 @model IReadOnlyList<Jason.Models.Dtos.SourceDto>
 @{
     ViewData["Title"] = "Fuentes";
+    var isAdmin = User.IsInRole(Roles.Admin);
 }
+<div class="jx-source-heading">
+    <div>
+        <h1>Fuentes de contenido</h1>
+        <p class="jx-muted">Cada fuente puede responder en JSON, XML o HTML. Jason las convierte al mismo formato.</p>
+    </div>
+    <span class="jx-source-count">@Model.Count fuente@(Model.Count == 1 ? "" : "s")</span>
+</div>
 
-<h1>Fuentes</h1>
-<p class="text-muted">Pantalla de prueba que confirma que la Web llega a la API y a la base de datos.</p>
+@if (isAdmin)
+{
+    <section class="jx-source-admin" aria-labelledby="add-source-title">
+        <div class="jx-source-admin-title">
+            <div>
+                <p class="jx-eyebrow">Solo Admin</p>
+                <h2 id="add-source-title">Agregar una fuente</h2>
+            </div>
+            <span>El formato se detecta automáticamente</span>
+        </div>
 
+        <form asp-action="Create" method="post" class="jx-source-form">
+            <label>
+                <span>Nombre de la fuente</span>
+                <input name="Name" class="jx-input" maxlength="200" placeholder="BBC News" required />
+            </label>
+
+            <label class="jx-source-url-field">
+                <span>Dirección URL</span>
+                <input name="Url" class="jx-input" type="url" maxlength="500"
+                       placeholder="https://ejemplo.com/feed" required />
+            </label>
+
+            <label>
+                <span>Tipo</span>
+                <select name="ComponentType" class="jx-select">
+                    <option value="api">API</option>
+                    <option value="feed">Feed</option>
+                    <option value="widget">Widget</option>
+                </select>
+            </label>
+
+            <label>
+                <span>Requiere secret</span>
+                <select name="RequiresSecret" class="jx-select">
+                    <option value="false">No</option>
+                    <option value="true">Sí</option>
+                </select>
+            </label>
+
+            <button type="submit" class="jx-btn jx-source-add">Agregar fuente</button>
+
+            <label class="jx-source-description-field">
+                <span>Descripción <small>(opcional)</small></span>
+                <input name="Description" class="jx-input" maxlength="500"
+                       placeholder="¿Qué contenido trae esta fuente?" />
+            </label>
+        </form>
+    </section>
+}
 @if (ViewBag.Error is string error)
 {
-    <div class="alert alert-warning">@error</div>
+    <div class="jx-alert jx-alert-err" role="alert">@error</div>
 }
 else if (!Model.Any())
 {
-    <div class="alert alert-info">Todavía no hay fuentes. Corre Database/02_seed_sources.sql para cargar unas de ejemplo.</div>
+    <div class="jx-source-empty">
+        <h2>Todavía no hay fuentes</h2>
+        <p>Agrega la primera fuente para comenzar a construir el feed.</p>
+    </div>
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr><th>Nombre</th><th>Tipo</th><th>URL</th><th>Requiere secret</th></tr>
-        </thead>
-        <tbody>
-            @foreach (var s in Model)
-            {
-                <tr>
-                    <td>@s.Name</td>
-                    <td>@s.ComponentType</td>
-                    <td>@s.Url</td>
-                    <td>@(s.RequiresSecret ? "Sí" : "No")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="jx-source-grid">
+        @foreach (var source in Model)
+        {
+            <article class="jx-source-card">
+                <div class="jx-source-card-top">
+                    <span class="jx-source-icon">{ }</span>
+                    <div>
+                        <h2>@source.Name</h2>
+                        <p>@(string.IsNullOrWhiteSpace(source.Description) ? "Sin descripción" : source.Description)</p>
+                    </div>
+                </div>
+
+                <a class="jx-source-link" href="@source.Url" target="_blank" rel="noopener noreferrer">
+                    @source.Url
+                </a>
+
+                <div class="jx-source-meta">
+                    <span>@source.ComponentType.ToUpperInvariant()</span>
+                    <span>@(source.RequiresSecret ? "Requiere secret" : "Sin secret")</span>
+                </div>
+
+                <div class="jx-source-card-bottom">
+                    <span class="jx-muted">ID @source.Id</span>
+                    @if (isAdmin)
+                    {
+                        <form asp-action="Delete" method="post" class="jx-inline"
+                              onsubmit="return confirm('¿Eliminar la fuente @source.Name?');">
+                            <input type="hidden" name="id" value="@source.Id" />
+                            <button type="submit" class="jx-btn jx-btn-danger jx-btn-sm">Eliminar</button>
+                        </form>
+                    }
+                </div>
+            </article>
+        }
+    </div>
 }
+

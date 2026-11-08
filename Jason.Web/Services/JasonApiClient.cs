@@ -8,6 +8,8 @@ namespace Jason.Web.Services;
 public interface IJasonApiClient
 {
     Task<IReadOnlyList<SourceDto>> GetSourcesAsync();
+    Task<SourceDto> CreateSourceAsync(CreateSourceDto source);
+    Task DeleteSourceAsync(int id);
 
     Task<AuthResponseDto> LoginAsync(LoginDto dto);
     Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
@@ -31,6 +33,12 @@ public class JasonApiClient : IJasonApiClient
 
     public async Task<IReadOnlyList<SourceDto>> GetSourcesAsync() =>
         await GetAsync<List<SourceDto>>("api/sources");
+
+    public async Task<SourceDto> CreateSourceAsync(CreateSourceDto source) =>
+        await SendAsync<SourceDto>(await _http.PostAsJsonAsync("api/sources", source));
+
+    public async Task DeleteSourceAsync(int id) =>
+        await SendAsync(await _http.DeleteAsync($"api/sources/{id}"));
 
     public async Task<AuthResponseDto> LoginAsync(LoginDto dto) =>
         await SendAsync<AuthResponseDto>(await _http.PostAsJsonAsync("api/auth/login", dto));
