@@ -1,0 +1,119 @@
+﻿@model Jason.Web.Models.ContentViewModel
+@{
+    ViewData["Title"] = "Contenido";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var es = new System.Globalization.CultureInfo("es");
+}
+
+<div class="jx-content-bar">
+    <div class="jx-tabs" role="tablist" aria-label="Origen de las fichas">
+        <a class="@(Model.Tab == "feed" ? "on" : "")" role="tab"
+           asp-action="Index" asp-route-tab="feed" asp-route-type="@Model.Type">Desde las fuentes</a>
+        <a class="@(Model.Tab == "saved" ? "on" : "")" role="tab"
+           asp-action="Index" asp-route-tab="saved" asp-route-type="@Model.Type">Guardados (@Model.SavedCount)</a>
+    </div>
+
+    <div class="jx-chips" aria-label="Filtrar por tipo">
+        <span class="jx-muted">Tipo</span>
+        @foreach (var (value, label) in Jason.Web.Models.ContentViewModel.Types)
+        {
+            <a class="jx-chip @(Model.Type == value ? "on" : "")"
+               asp-action="Index" asp-route-tab="@Model.Tab" asp-route-type="@value">@label</a>
+        }
+    </div>
+</div>
+
+@if (Model.FellBackToFeed)
+{
+    <div class="jx-source-note">Todavía no hay fichas guardadas, así que te mostramos las que traen las fuentes.</div>
+}
+
+@if (Model.Error is string error)
+{
+    <div class="jx-alert jx-alert-err" role="alert">@error</div>
+}
+else if (!Model.Cards.Any())
+{
+    <div class="jx-source-empty">
+        <h2>@(Model.Type != null ? "No hay fichas de este tipo" : "No hay fichas para mostrar")</h2>
+        <p>
+            @if (Model.Type != null)
+            {
+                <text>Prueba con otro tipo o elige <b>Todos</b>.</text>
+            }
+            else
+            {
+                <text>Cuando un administrador agregue fuentes, sus fichas aparecerán aquí.</text>
+            }
+        </p>
+    </div>
+}
+else
+{
+    <div class="jx-item-grid">
+        @foreach (var card in Model.Cards)
+        {
+            var item = card.Item;
+            <article class="jx-item jx-item-@item.MediaType">
+                <div class="jx-item-top">
+                    <span>@card.SourceName</span>
+                    <time datetime="@item.CreatedAt.ToString("yyyy-MM-dd")">@item.CreatedAt.ToString("d MMM yyyy", es)</time>
+                </div>
+
+                @if (card.SafeThumbnail is string thumbnail)
+                {
+                    <img class="jx-item-thumb" src="@thumbnail" alt="@item.Title" loading="lazy" referrerpolicy="no-referrer" />
+                }
+
+                <h2>
+                    @if (card.SafeUrl is string link)
+                    {
+                        <a href="@link" target="_blank" rel="noopener noreferrer">@item.Title</a>
+                    }
+                    else
+                    {
+                        @item.Title
+                    }
+                </h2>
+
+                @if (card.ShortDescription is string description)
+                {
+                    <p class="jx-item-desc">@description</p>
+                }
+
+                <div class="jx-item-actions">
+                    @if (card.IsSaved)
+                    {
+                        <button type="button" class="jx-btn jx-btn-saved jx-btn-sm" disabled>Guardado</button>
+                    }
+                    else if (isAuthenticated)
+                    {
+                        <form asp-action="Save" method="post" class="jx-inline">
+                            <input type="hidden" name="sourceId" value="@card.SourceId" />
+                            <input type="hidden" name="itemId" value="@item.Id" />
+                            <input type="hidden" name="type" value="@Model.Type" />
+                            <button type="submit" class="jx-btn jx-btn-sm">Guardar</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button type="button" class="jx-btn jx-btn-sm" disabled title="Inicia sesión para guardar">Guardar</button>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+
+    @if (Model.TotalCards > Model.Cards.Count)
+    {
+        <p class="jx-muted jx-content-note">Mostrando las @Model.Cards.Count fichas más recientes de @Model.TotalCards.</p>
+    }
+}
+
+<p class="jx-muted jx-content-note">
+    Si aún no hay fichas guardadas, esta pantalla muestra las de las fuentes.
+    @if (!isAuthenticated)
+    {
+        <text>Los visitantes ven los botones Guardar desactivados. <a asp-controller="Account" asp-action="Login">Inicia sesión</a> para guardar.</text>
+    }
+</p>

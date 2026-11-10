@@ -1,5 +1,6 @@
-using System.Text.Json;
 using Jason.Models.Dtos;
+using Jason.Models.Exchange;
+using System.Text.Json;
 
 namespace Jason.Web.Services;
 
@@ -20,6 +21,9 @@ public interface IJasonApiClient
     Task<IReadOnlyList<SecretDto>> GetSecretsAsync();
     Task SaveSecretAsync(SaveSecretDto dto);
     Task DeleteSecretAsync(string key);
+    Task<DashboardExport> GetFeedAsync();
+    Task<IReadOnlyList<SourceItemDto>> GetItemsAsync();
+    Task<SourceItemDto> SaveItemAsync(SaveItemDto dto);
 }
 
 public class JasonApiClient : IJasonApiClient
@@ -60,6 +64,16 @@ public class JasonApiClient : IJasonApiClient
 
     public async Task DeleteSecretAsync(string key) =>
         await SendAsync(await _http.DeleteAsync($"api/settings/secrets/{Uri.EscapeDataString(key)}"));
+
+    public async Task<DashboardExport> GetFeedAsync() =>
+     await GetAsync<DashboardExport>("api/feed");
+
+    public async Task<IReadOnlyList<SourceItemDto>> GetItemsAsync() =>
+        await GetAsync<List<SourceItemDto>>("api/items");
+
+    public async Task<SourceItemDto> SaveItemAsync(SaveItemDto dto) =>
+        await SendAsync<SourceItemDto>(await _http.PostAsJsonAsync("api/items", dto));
+
 
     private async Task<T> GetAsync<T>(string url) => await SendAsync<T>(await _http.GetAsync(url));
 

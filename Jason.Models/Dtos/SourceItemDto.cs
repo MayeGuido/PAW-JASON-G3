@@ -8,4 +8,5 @@ public class SourceItemDto
     // Item completo en el formato común (JSON como texto)
     public string Json { get; set; } = string.Empty;
     public DateTime CreatedAt { get; set; }
+    public string SourceName { get; set; } = string.Empty;
 }

@@ -6,6 +6,7 @@ namespace Jason.DataAccess.Repositories;
 
 public interface ISourceItemRepository : IRepositoryBase<SourceItem>
 {
+    Task<IEnumerable<SourceItem>> ReadWithSourceAsync();
     Task<IEnumerable<SourceItem>> ReadBySourceAsync(int sourceId);
 
     // Busca un item por el id que trae dentro del JSON (regla del formato común: no duplicar al importar)
@@ -17,6 +18,12 @@ public class SourceItemRepository : RepositoryBase<SourceItem>, ISourceItemRepos
     public SourceItemRepository(AppDbContext context) : base(context)
     {
     }
+
+    public async Task<IEnumerable<SourceItem>> ReadWithSourceAsync() =>
+        await DbSet.AsNoTracking()
+            .Include(i => i.Source)
+            .OrderByDescending(i => i.CreatedAt)
+            .ToListAsync();
 
     public async Task<IEnumerable<SourceItem>> ReadBySourceAsync(int sourceId) =>
         await DbSet.AsNoTracking()

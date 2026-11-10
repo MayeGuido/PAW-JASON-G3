@@ -1,9 +1,68 @@
 ﻿@{
     ViewData["Title"] = "Inicio";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
 }
 
-<div class="py-5">
-    <h1 class="display-4">Jason</h1>
-    <p class="lead">Cada API habla distinto. Aquí todas hablan igual.</p>
-    <a class="btn btn-primary" asp-controller="Sources" asp-action="Index">Ver fuentes</a>
-</div>
+<section class="jx-hero">
+    <div class="jx-hero-copy">
+        <h1>Cada API habla distinto. Aquí todas hablan igual.</h1>
+        <p class="lead">
+            Con Jason lees noticias, ciencia, libros y más como fichas iguales, guardas las que te sirven
+            y las pasas a otra app en un archivo JSON.
+        </p>
+        <div class="jx-hero-actions">
+            <a class="jx-btn" asp-controller="Content" asp-action="Index">Ver contenido</a>
+            @if (!isAuthenticated)
+            {
+                <a class="jx-btn jx-btn-out" asp-controller="Account" asp-action="Login">Iniciar sesión</a>
+            }
+        </div>
+    </div>
+
+    <div class="jx-hero-visual" aria-hidden="true">
+        <div class="jx-hero-inputs">
+            <div class="jx-snippet">
+                <small>Spaceflight News devuelve JSON</small>
+                <code>{ "title": "Lanzamiento…",<br />&nbsp;&nbsp;"published_at": "2026-10-14" }</code>
+            </div>
+            <div class="jx-snippet">
+                <small>Reddit devuelve JSON anidado</small>
+                <code>{ "data": { "ups": 15230,<br />&nbsp;&nbsp;"created_utc": 1760352300 } }</code>
+            </div>
+            <div class="jx-snippet">
+                <small>BBC devuelve XML</small>
+                <code>&lt;item&gt;&lt;title&gt;…&lt;/title&gt;<br />&lt;pubDate&gt;14 Oct 2026&lt;/pubDate&gt;&lt;/item&gt;</code>
+            </div>
+        </div>
+
+        <div class="jx-hero-result">
+            <div class="jx-item jx-item-text">
+                <div class="jx-item-top"><span>Una sola forma</span><span>Texto</span></div>
+                <h2>Lanzamiento exitoso de un cohete reutilizable</h2>
+                <code class="jx-item-fields">title, mediaType, createdAt</code>
+                <div class="jx-item-actions">
+                    <span class="jx-btn jx-btn-sm">Guardar</span>
+                    <span class="jx-btn jx-btn-out jx-btn-sm">Descargar JSON</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="jx-steps">
+    <div>
+        <span class="jx-step-num">1</span>
+        <h3>Lee</h3>
+        <p>Un administrador agrega fuentes en JSON, XML o HTML y la app las muestra todas igual.</p>
+    </div>
+    <div>
+        <span class="jx-step-num">2</span>
+        <h3>Guarda</h3>
+        <p>Quienes tienen sesión eligen qué fichas se guardan en la base de datos.</p>
+    </div>
+    <div>
+        <span class="jx-step-num">3</span>
+        <h3>Comparte</h3>
+        <p>Descarga una ficha como JSON y súbela en la app de cualquier otro grupo.</p>
+    </div>
+</section>

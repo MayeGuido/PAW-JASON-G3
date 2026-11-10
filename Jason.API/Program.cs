@@ -168,6 +168,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 builder.Services.AddScoped<ISourceService, SourceService>();
 builder.Services.AddScoped<IFeedService, FeedService>();
+builder.Services.AddScoped<IItemService, ItemService>();
+
 
 // Parsers (Strategy + Factory)
 builder.Services.AddSingleton<IContentParser, JsonContentParser>();
