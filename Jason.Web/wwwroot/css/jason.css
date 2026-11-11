@@ -1232,3 +1232,112 @@ a {
         grid-template-columns: 1fr;
     }
 }
+
+/* ---------- Importar y compartir archivos (tramo D) ---------- */
+.jx-title { font-size: 3.4rem; margin: 0 0 0.6rem; }
+.jx-lead { max-width: 42rem; margin-bottom: 2rem; }
+
+.jx-import { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+
+.jx-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 26rem;
+    padding: 2rem;
+    text-align: center;
+    background: #fff;
+    border: 2px dashed var(--ink);
+    border-radius: 14px;
+}
+
+.jx-drop h2 { font-size: 1.9rem; margin: 0 0 0.5rem; }
+.jx-drop p { margin: 0 0 1rem; }
+.jx-drop .jx-drop-note { margin: 1.25rem 0 0; font-size: 0.85rem; }
+.jx-drop-over { background: var(--blue-soft); border-color: var(--blue); }
+
+.jx-result-title { font-size: 1.6rem; margin: 0 0 1rem; }
+
+.jx-result {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.9rem;
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+}
+
+.jx-result b { display: block; }
+.jx-result p { margin: 0; font-size: 0.9rem; }
+.jx-result-err { border-color: var(--red); background: #fdecea; }
+
+.jx-dot {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+.jx-dot-ok { background: var(--green); color: #fff; }
+.jx-dot-warn { background: var(--yellow); color: var(--ink); }
+.jx-dot-err { background: var(--red); color: #fff; }
+
+.jx-btn-dark { background: var(--ink); border-color: var(--ink); }
+.jx-btn-dark:hover { background: #000; border-color: #000; }
+
+/* Panel "archivo para compartir" */
+.jx-share-page { max-width: 38rem; }
+
+.jx-share {
+    background: #fff;
+    border: 1.5px solid var(--ink);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.jx-share-head, .jx-share-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+.jx-share-head { background: var(--ink); color: #fff; }
+.jx-share-file { color: var(--yellow); }
+.jx-share-foot { background: var(--yellow); color: var(--ink); font-weight: 600; border-top: 1.5px solid var(--ink); font-size: 0.85rem; }
+
+.jx-share-body { padding: 1.5rem; }
+.jx-share-body h2 { font-size: 1.8rem; margin: 0 0 0.25rem; }
+
+.jx-code {
+    max-height: 20rem;
+    overflow: auto;
+    margin: 1rem 0;
+    padding: 1.25rem;
+    background: var(--ink);
+    color: #9be7c4;
+    border-radius: var(--radius);
+    font-family: 'IBM Plex Mono', Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.jx-share-actions { display: flex; gap: 0.75rem; }
+.jx-btn-grow { flex: 1; }
+
+@media (max-width: 900px) {
+    .jx-title { font-size: 2.4rem; }
+    .jx-import { grid-template-columns: 1fr; }
+    .jx-drop { min-height: 16rem; }
+}
+
+.jx-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0; }

@@ -1,0 +1,15 @@
+@model ShareViewModel
+@{
+    ViewData["Title"] = "Compartir ficha";
+}
+
+<h1 class="jx-title">Compartir una ficha</h1>
+<p class="jx-muted jx-lead">Descarga el archivo y pásaselo a otro grupo. Ellos lo cargan en su app con la pantalla de importar.</p>
+
+<div class="jx-share-page">
+    <partial name="_SharePanel" model="Model" />
+</div>
+
+@section Scripts {
+    <script src="~/js/exchange.js" asp-append-version="true"></script>
+}

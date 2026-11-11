@@ -22,8 +22,14 @@ Las rutas marcadas con acceso distinto de "Público" necesitan el token JWT en e
 | GET | `/api/feed` | Público | Trae y parsea el contenido de las fuentes, sin guardar. Usa cache | hecho |
 | GET | `/api/items` | Público | Lista los items guardados | pendiente |
 | POST | `/api/items` | Con sesión | Guarda un item elegido | pendiente |
-| GET | `/api/items/{id}/export` | Con sesión | Descarga el item como archivo JSON (formato común) | pendiente |
-| POST | `/api/items/import` | Con sesión | Sube un JSON, lo valida y lo guarda | pendiente |
+| GET | `/api/items/{id}/export` | Con sesión | Descarga el item como archivo JSON (formato común). Quita claves de la URL y valida contra el schema | hecho |
+| GET | `/api/items/export` | Con sesión | Descarga un solo archivo JSON con todas las fichas guardadas, agrupadas por fuente | hecho |
+| POST | `/api/items/import` | Con sesión | Sube un JSON (`multipart/form-data`, campo `file`), lo valida y lo guarda. Devuelve `ImportResultDto` con nuevas, reemplazadas y advertencias | hecho |
+| POST | `/api/items/import?preview=true` | Con sesión | Igual que el anterior, pero solo revisa el archivo y dice qué pasaría, sin guardar nada (`isPreview: true`) | hecho |
+
+## Pruebas automáticas
+
+El proyecto `Jason.Tests` prueba el servicio de exportar e importar con repositorios en memoria (no necesita base de datos). Se corre con `dotnet test`.
 
 ## Formato de error
 
