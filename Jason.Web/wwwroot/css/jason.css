@@ -412,3 +412,5 @@ a { color: var(--blue); }
     .jx-import { grid-template-columns: 1fr; }
     .jx-drop { min-height: 16rem; }
 }
+
+.jx-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 0; }

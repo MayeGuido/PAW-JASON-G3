@@ -15,5 +15,8 @@ public class ImportViewModel
 {
     public string? FileName { get; set; }
     public ImportResultDto? Result { get; set; }
+
+    // Identifica el archivo que quedó en espera de confirmación (solo en la vista previa)
+    public string? Token { get; set; }
     public string? Error { get; set; }
 }
