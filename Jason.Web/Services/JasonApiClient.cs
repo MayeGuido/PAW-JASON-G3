@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text.Json;
 using Jason.Models.Dtos;
 
@@ -18,6 +19,10 @@ public interface IJasonApiClient
     Task<IReadOnlyList<SecretDto>> GetSecretsAsync();
     Task SaveSecretAsync(SaveSecretDto dto);
     Task DeleteSecretAsync(string key);
+
+    // Descargar e importar archivos JSON del formato común
+    Task<ExportFileDto> ExportItemAsync(int itemId);
+    Task<ImportResultDto> ImportFileAsync(Stream content, string fileName);
 }
 
 public class JasonApiClient : IJasonApiClient
@@ -52,6 +57,25 @@ public class JasonApiClient : IJasonApiClient
 
     public async Task DeleteSecretAsync(string key) =>
         await SendAsync(await _http.DeleteAsync($"api/settings/secrets/{Uri.EscapeDataString(key)}"));
+
+    public async Task<ExportFileDto> ExportItemAsync(int itemId)
+    {
+        using var response = await _http.GetAsync($"api/items/{itemId}/export");
+        await EnsureSuccessAsync(response);
+
+        var disposition = response.Content.Headers.ContentDisposition;
+        var fileName = disposition?.FileNameStar ?? disposition?.FileName?.Trim('"') ?? $"ficha-{itemId}.json";
+        return new ExportFileDto { FileName = fileName, Json = await response.Content.ReadAsStringAsync() };
+    }
+
+    public async Task<ImportResultDto> ImportFileAsync(Stream content, string fileName)
+    {
+        using var form = new MultipartFormDataContent();
+        var file = new StreamContent(content);
+        file.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        form.Add(file, "file", fileName);
+        return await SendAsync<ImportResultDto>(await _http.PostAsync("api/items/import", form));
+    }
 
     private async Task<T> GetAsync<T>(string url) => await SendAsync<T>(await _http.GetAsync(url));
 

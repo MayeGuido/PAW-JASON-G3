@@ -1,0 +1,24 @@
+@* Panel "archivo para compartir" (docs/diseno/04-detalle.png).
+   Se usa con un ShareViewModel: <partial name="_SharePanel" model="..." />.
+   Lo incluye el detalle de una ficha (tramo C) y también la pantalla Exchange/Share. *@
+@model ShareViewModel
+
+<aside class="jx-share" aria-label="Archivo para compartir">
+    <div class="jx-share-head">
+        <span class="jx-mono jx-share-file">@Model.FileName</span>
+        <span>Formato común 1.0</span>
+    </div>
+    <div class="jx-share-body">
+        <h2>Archivo para compartir</h2>
+        <p class="jx-muted">Cualquier otro grupo puede cargar este archivo en su app.</p>
+        <pre class="jx-code" id="share-json" tabindex="0">@Model.Json</pre>
+        <div class="jx-share-actions">
+            <a class="jx-btn jx-btn-grow" asp-controller="Exchange" asp-action="Download" asp-route-id="@Model.ItemId">Descargar .json</a>
+            <button type="button" class="jx-btn jx-btn-out" data-copy-target="share-json">Copiar</button>
+        </div>
+    </div>
+    <div class="jx-share-foot">
+        <span>Codificación UTF-8</span>
+        <span>Sin claves ni contraseñas</span>
+    </div>
+</aside>

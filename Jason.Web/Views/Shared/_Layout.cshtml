@@ -22,6 +22,10 @@
         <nav class="jx-nav">
             <a class="@Active("Home")" asp-controller="Home" asp-action="Index">Inicio</a>
             <a class="@Active("Sources")" asp-controller="Sources" asp-action="Index">Fuentes</a>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="@Active("Exchange")" asp-controller="Exchange" asp-action="Import">Importar</a>
+            }
             @if (User.IsInRole(Roles.Admin))
             {
                 <a class="@Active("Settings")" asp-controller="Settings" asp-action="Index">Configuración</a>
