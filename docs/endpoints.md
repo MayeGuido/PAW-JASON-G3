@@ -22,8 +22,8 @@ Las rutas marcadas con acceso distinto de "Público" necesitan el token JWT en e
 | GET | `/api/feed` | Público | Trae y parsea el contenido de las fuentes, sin guardar. Usa cache | pendiente |
 | GET | `/api/items` | Público | Lista los items guardados | pendiente |
 | POST | `/api/items` | Con sesión | Guarda un item elegido | pendiente |
-| GET | `/api/items/{id}/export` | Con sesión | Descarga el item como archivo JSON (formato común) | pendiente |
-| POST | `/api/items/import` | Con sesión | Sube un JSON, lo valida y lo guarda | pendiente |
+| GET | `/api/items/{id}/export` | Con sesión | Descarga el item como archivo JSON (formato común). Quita claves de la URL y valida contra el schema | hecho |
+| POST | `/api/items/import` | Con sesión | Sube un JSON (`multipart/form-data`, campo `file`), lo valida y lo guarda. Devuelve `ImportResultDto` con nuevas, reemplazadas y advertencias | hecho |
 
 ## Formato de error
 

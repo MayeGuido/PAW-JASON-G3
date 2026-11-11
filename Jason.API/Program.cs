@@ -163,6 +163,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISecretService, SecretService>();
 builder.Services.AddScoped<ISourceService, SourceService>();
+builder.Services.AddScoped<IExchangeService, ExchangeService>();
 
 // Parsers (Strategy + Factory)
 builder.Services.AddSingleton<IContentParser, JsonContentParser>();
