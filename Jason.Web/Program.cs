@@ -14,6 +14,9 @@ builder.Configuration.AddCommandLine(args);
 builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
+// Guarda unos minutos el archivo que se está revisando para poder confirmarlo sin volver a subirlo
+builder.Services.AddMemoryCache();
+
 // Sesión: cookie de la Web que guarda el token JWT de la API
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

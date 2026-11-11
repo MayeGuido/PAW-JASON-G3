@@ -1,0 +1,135 @@
+@model ImportViewModel
+@{
+    ViewData["Title"] = "Importar";
+    var result = Model.Result;
+    var preview = result?.IsPreview == true;
+
+    string Plural(int n, string one, string many) => n == 1 ? $"1 {one}" : $"{n} {many}";
+
+    // "Se creó la fuente GIPHY porque no existía." (o en condicional si es solo la vista previa)
+    string CreatedSourcesText(Jason.Models.Dtos.ImportResultDto r)
+    {
+        var one = r.CreatedSources.Count == 1;
+        var names = string.Join(", ", r.CreatedSources);
+        return preview
+            ? $"{(one ? "Se crearía la fuente" : "Se crearían las fuentes")} {names} porque no {(one ? "existe" : "existen")}."
+            : $"{(one ? "Se creó la fuente" : "Se crearon las fuentes")} {names} porque no {(one ? "existía" : "existían")}.";
+    }
+}
+
+<h1 class="jx-title">Importar un archivo</h1>
+<p class="jx-muted jx-lead">Sube un archivo JSON de otro grupo. Lo revisamos antes de guardar nada, y si algo no cuadra te decimos qué.</p>
+<p>
+    <a class="jx-btn jx-btn-out jx-btn-sm" asp-action="DownloadAll">Descargar todas las fichas</a>
+</p>
+
+<div class="jx-two jx-import">
+    <form asp-action="Preview" method="post" enctype="multipart/form-data" id="import-form">
+        <div class="jx-drop" id="drop-zone">
+            <h2>Suelta aquí tu archivo .json</h2>
+            <p class="jx-muted">o elige uno desde tu computadora</p>
+            <input type="file" name="file" id="file-input" accept=".json,application/json" hidden />
+            <button type="button" class="jx-btn" id="pick-file">Elegir archivo</button>
+            <p class="jx-muted jx-drop-note">Formato común versión 1.0, codificación UTF-8</p>
+        </div>
+    </form>
+
+    <section aria-live="polite">
+        @if (Model.Error is not null)
+        {
+            <h2 class="jx-result-title">No se pudo importar @(Model.FileName ?? "el archivo")</h2>
+            <div class="jx-result jx-result-err">
+                <span class="jx-dot jx-dot-err" aria-hidden="true">!</span>
+                <div>
+                    <b>El archivo no se guardó</b>
+                    <p class="jx-muted">@Model.Error</p>
+                </div>
+            </div>
+        }
+        else if (result is not null)
+        {
+            <h2 class="jx-result-title">@(preview ? "Esto pasaría con" : "Resultado de") @Model.FileName</h2>
+
+            <div class="jx-result">
+                <span class="jx-dot jx-dot-ok" aria-hidden="true">✓</span>
+                <div>
+                    <b>Archivo válido</b>
+                    <p class="jx-muted">Versión @result.Version, @Plural(result.SourcesInFile, "fuente", "fuentes"), @Plural(result.ItemsInFile, "ficha", "fichas").</p>
+                </div>
+            </div>
+
+            @if (result.ItemsCreated > 0)
+            {
+                <div class="jx-result">
+                    <span class="jx-dot jx-dot-ok" aria-hidden="true">✓</span>
+                    <div>
+                        <b>
+                            @if (preview)
+                            {
+                                @(result.ItemsCreated == 1 ? "1 ficha nueva se guardaría" : $"{result.ItemsCreated} fichas nuevas se guardarían")
+                            }
+                            else
+                            {
+                                @(result.ItemsCreated == 1 ? "1 ficha nueva guardada" : $"{result.ItemsCreated} fichas nuevas guardadas")
+                            }
+                        </b>
+                        @if (result.CreatedSources.Count > 0)
+                        {
+                            <p class="jx-muted">@CreatedSourcesText(result)</p>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (result.ItemsReplaced > 0)
+            {
+                <div class="jx-result">
+                    <span class="jx-dot jx-dot-warn" aria-hidden="true">!</span>
+                    <div>
+                        <b>
+                            @if (preview)
+                            {
+                                @(result.ItemsReplaced == 1 ? "1 ficha ya existe y se reemplazaría" : $"{result.ItemsReplaced} fichas ya existen y se reemplazarían")
+                            }
+                            else
+                            {
+                                @(result.ItemsReplaced == 1 ? "1 ficha ya existía y se reemplazó" : $"{result.ItemsReplaced} fichas ya existían y se reemplazaron")
+                            }
+                        </b>
+                        <p class="jx-muted">Mismo id de fuente e ítem: @string.Join(" · ", result.ReplacedItems).</p>
+                    </div>
+                </div>
+            }
+
+            @if (result.UnknownCategories > 0)
+            {
+                <div class="jx-result">
+                    <span class="jx-dot jx-dot-warn" aria-hidden="true">!</span>
+                    <div>
+                        <b>@(result.UnknownCategories == 1 ? "1 ficha tiene una categoría desconocida" : $"{result.UnknownCategories} fichas tienen una categoría desconocida")</b>
+                        <p class="jx-muted">Se guardará como “otros” en vez de rechazar el archivo.</p>
+                    </div>
+                </div>
+            }
+
+            @if (preview)
+            {
+                <p class="jx-muted">Todavía no se guardó nada. Revisa el resumen y confirma para importar.</p>
+                <form asp-action="Confirm" method="post" class="jx-actions">
+                    <input type="hidden" name="token" value="@Model.Token" />
+                    <button type="submit" class="jx-btn">Confirmar e importar</button>
+                    <a class="jx-btn jx-btn-out" asp-action="Import">Cancelar</a>
+                </form>
+            }
+            else
+            {
+                @* TODO: la pantalla de contenido (Items/Index) la hace el tramo C; este enlace funciona cuando exista *@
+                <a class="jx-btn jx-btn-dark" asp-controller="Items" asp-action="Index">Ver las fichas importadas</a>
+            }
+        }
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/exchange.js" asp-append-version="true"></script>
+}
