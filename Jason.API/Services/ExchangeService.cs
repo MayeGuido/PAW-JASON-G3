@@ -17,8 +17,12 @@ public interface IExchangeService
     // Arma el archivo JSON (formato común) de un item guardado
     Task<ExportFileDto> ExportItemAsync(int itemId);
 
-    // Valida un archivo JSON de cualquier grupo y guarda sus fuentes e items
-    Task<ImportResultDto> ImportAsync(IFormFile? file);
+    // Arma un solo archivo con todas las fichas guardadas, agrupadas por fuente
+    Task<ExportFileDto> ExportAllAsync();
+
+    // Valida un archivo JSON de cualquier grupo y guarda sus fuentes e items.
+    // Con preview = true solo calcula qué pasaría, sin guardar nada.
+    Task<ImportResultDto> ImportAsync(IFormFile? file, bool preview);
 }
 
 public class ExchangeService : IExchangeService
@@ -54,50 +58,11 @@ public class ExchangeService : IExchangeService
         var source = await _sources.FindAsync(entity.SourceId)
             ?? throw ApiException.NotFound("La fuente de esa ficha ya no existe.");
 
-        ExportItem item;
-        try
-        {
-            item = JsonSerializer.Deserialize<ExportItem>(entity.Json, DashboardExport.JsonOptions)
-                ?? throw new JsonException("La ficha está vacía.");
-        }
-        catch (JsonException)
-        {
-            throw ApiException.Conflict("La ficha guardada no tiene el formato común, por eso no se puede descargar.");
-        }
-
-        // Una categoría que no está en la lista haría que otro grupo rechace el archivo completo
-        item.Category = NormalizeCategory(item.Category);
-        if (item.Url is not null)
-            item.Url = CleanUrl(item.Url);
+        var item = ParseItem(entity.Json)
+            ?? throw ApiException.Conflict("La ficha guardada no tiene el formato común, por eso no se puede descargar.");
 
         var sourceSlug = Slugify(source.Name);
-        var export = new DashboardExport
-        {
-            ExportedAt = DateTime.UtcNow,
-            ExportedBy = GroupName,
-            Sources =
-            {
-                new ExportSource
-                {
-                    Id = sourceSlug,
-                    Name = source.Name,
-                    Url = CleanUrl(source.Url),
-                    Category = item.Category,
-                    Description = source.Description,
-                    ComponentType = source.ComponentType,
-                    RequiresSecret = source.RequiresSecret,
-                    Items = { item }
-                }
-            }
-        };
-
-        // Saltos de línea siempre iguales (solo LF), sin importar el sistema donde se genere el archivo
-        var json = export.ToJson().Replace(Environment.NewLine, "\n");
-
-        // Antes de compartir un archivo se valida contra el schema (regla del formato común)
-        var errors = Validate(JsonNode.Parse(json));
-        if (errors.Count > 0)
-            throw ApiException.Conflict("La ficha no cumple el formato común: " + string.Join(" ", errors));
+        var json = BuildFile(new List<ExportSource> { BuildSource(source, sourceSlug, new List<ExportItem> { item }) });
 
         return new ExportFileDto
         {
@@ -106,7 +71,96 @@ public class ExchangeService : IExchangeService
         };
     }
 
-    public async Task<ImportResultDto> ImportAsync(IFormFile? file)
+    public async Task<ExportFileDto> ExportAllAsync()
+    {
+        var sources = (await _sources.ReadAsync()).OrderBy(s => s.Name).ToList();
+        var entities = (await _items.ReadAsync()).OrderBy(i => i.CreatedAt).ToList();
+
+        var exportSources = new List<ExportSource>();
+        var usedIds = new HashSet<string>();
+
+        foreach (var source in sources)
+        {
+            // Las fichas que no tienen el formato común se saltan para no dañar el archivo completo
+            var items = entities
+                .Where(i => i.SourceId == source.Id)
+                .Select(i => ParseItem(i.Json))
+                .OfType<ExportItem>()
+                .ToList();
+            if (items.Count == 0)
+                continue;
+
+            // El id de cada fuente no se puede repetir dentro del archivo
+            var slug = Slugify(source.Name);
+            var candidate = slug;
+            for (var n = 2; !usedIds.Add(candidate); n++)
+                candidate = $"{slug}-{n}";
+
+            exportSources.Add(BuildSource(source, candidate, items));
+        }
+
+        if (exportSources.Count == 0)
+            throw ApiException.NotFound("Todavía no hay fichas guardadas para descargar.");
+
+        return new ExportFileDto
+        {
+            FileName = $"jason-fichas-{DateTime.UtcNow:yyyyMMdd}.json",
+            Json = BuildFile(exportSources)
+        };
+    }
+
+    // null si el texto guardado no es un item del formato común
+    private static ExportItem? ParseItem(string json)
+    {
+        try
+        {
+            return JsonSerializer.Deserialize<ExportItem>(json, DashboardExport.JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
+    private static ExportSource BuildSource(Source source, string id, List<ExportItem> items)
+    {
+        foreach (var item in items)
+        {
+            // Una categoría que no está en la lista haría que otro grupo rechace el archivo completo
+            item.Category = NormalizeCategory(item.Category);
+            if (item.Url is not null)
+                item.Url = CleanUrl(item.Url);
+        }
+
+        return new ExportSource
+        {
+            Id = id,
+            Name = source.Name,
+            Url = CleanUrl(source.Url),
+            Category = items.Select(i => i.Category).FirstOrDefault(c => c is not null),
+            Description = source.Description,
+            ComponentType = source.ComponentType,
+            RequiresSecret = source.RequiresSecret,
+            Items = items
+        };
+    }
+
+    private static string BuildFile(List<ExportSource> sources)
+    {
+        var export = new DashboardExport { ExportedAt = DateTime.UtcNow, ExportedBy = GroupName, Sources = sources };
+
+        // Saltos de línea siempre iguales (solo LF), sin importar el sistema donde se genere el archivo
+        var json = export.ToJson().Replace(Environment.NewLine, "\n");
+
+        // Antes de compartir un archivo se valida contra el schema (regla del formato común)
+        var errors = Validate(JsonNode.Parse(json));
+        if (errors.Count > 0)
+            throw ApiException.Conflict("El archivo no cumple el formato común: " + string.Join(" ", errors));
+
+        return json;
+    }
+
+    public async Task<ImportResultDto> ImportAsync(IFormFile? file, bool preview)
     {
         if (file is null || file.Length == 0)
             throw ApiException.BadRequest("Elige un archivo .json para importar.");
@@ -114,7 +168,7 @@ public class ExchangeService : IExchangeService
             throw ApiException.BadRequest("El archivo es muy grande (máximo 5 MB).");
 
         var root = await ReadJsonAsync(file);
-        var result = new ImportResultDto();
+        var result = new ImportResultDto { IsPreview = preview };
 
         // Una categoría desconocida no rechaza el archivo: se guarda como "otros" y se avisa
         result.UnknownCategories = NormalizeCategories(root);
@@ -132,23 +186,30 @@ public class ExchangeService : IExchangeService
 
         foreach (var exportSource in export.Sources)
         {
-            var sourceId = await FindOrCreateSourceAsync(exportSource, result);
+            var sourceId = await FindOrCreateSourceAsync(exportSource, result, preview);
 
             foreach (var item in exportSource.Items)
             {
-                var json = JsonSerializer.Serialize(item, CompactOptions);
-                var existing = await _items.FindByExternalIdAsync(sourceId, item.Id);
+                // En la vista previa, una fuente nueva todavía no tiene id: todas sus fichas serían nuevas
+                var existing = sourceId is int id ? await _items.FindByExternalIdAsync(id, item.Id) : null;
 
                 if (existing is null)
                 {
-                    await _items.CreateAsync(new SourceItem { SourceId = sourceId, Json = json, CreatedAt = DateTime.UtcNow });
+                    if (!preview)
+                    {
+                        var json = JsonSerializer.Serialize(item, CompactOptions);
+                        await _items.CreateAsync(new SourceItem { SourceId = sourceId!.Value, Json = json, CreatedAt = DateTime.UtcNow });
+                    }
                     result.ItemsCreated++;
                 }
                 else
                 {
-                    existing.Json = json;
-                    existing.CreatedAt = DateTime.UtcNow;
-                    await _items.UpdateAsync(existing);
+                    if (!preview)
+                    {
+                        existing.Json = JsonSerializer.Serialize(item, CompactOptions);
+                        existing.CreatedAt = DateTime.UtcNow;
+                        await _items.UpdateAsync(existing);
+                    }
                     result.ItemsReplaced++;
                     result.ReplacedItems.Add($"{exportSource.Id}, {item.Id}");
                 }
@@ -159,7 +220,8 @@ public class ExchangeService : IExchangeService
     }
 
     // La fuente se busca por su URL (o por el nombre si el archivo no trae URL). Si no existe, se crea.
-    private async Task<int> FindOrCreateSourceAsync(ExportSource exportSource, ImportResultDto result)
+    // En la vista previa no se crea nada: se devuelve null y solo se anota en el resultado.
+    private async Task<int?> FindOrCreateSourceAsync(ExportSource exportSource, ImportResultDto result, bool preview)
     {
         var url = exportSource.Url?.Trim() ?? string.Empty;
 
@@ -181,8 +243,12 @@ public class ExchangeService : IExchangeService
             ComponentType = exportSource.ComponentType is "widget" or "api" or "feed" ? exportSource.ComponentType : "api",
             RequiresSecret = exportSource.RequiresSecret ?? false
         };
-        await _sources.CreateAsync(source);
         result.CreatedSources.Add(source.Name);
+
+        if (preview)
+            return null;
+
+        await _sources.CreateAsync(source);
         return source.Id;
     }
 

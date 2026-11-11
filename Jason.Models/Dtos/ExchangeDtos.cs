@@ -10,6 +10,9 @@ public class ExportFileDto
 // Resumen de lo que pasó al importar un archivo
 public class ImportResultDto
 {
+    // true si solo se revisó el archivo y no se guardó nada (vista previa)
+    public bool IsPreview { get; set; }
+
     public string Version { get; set; } = string.Empty;
     public int SourcesInFile { get; set; }
     public int ItemsInFile { get; set; }
