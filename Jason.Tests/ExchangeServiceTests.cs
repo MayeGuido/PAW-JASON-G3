@@ -23,7 +23,7 @@ public class ExchangeServiceTests
     {
         _service = new ExchangeService(_sources, _items);
 
-        // Una fuente con una ficha guardada, como la que deja el tramo C
+        // Una fuente con una ficha guardada, como la que queda al guardar una ficha desde el feed
         _sources.Data.Add(new Source { Id = 1, Name = "Spaceflight News", Url = SpaceUrl, ComponentType = "api" });
         _items.Data.Add(new SourceItem
         {

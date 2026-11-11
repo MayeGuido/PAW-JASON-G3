@@ -21,6 +21,7 @@
         <a class="jx-logo" asp-controller="Home" asp-action="Index"><span class="jx-mark">{ }</span>Jason</a>
         <nav class="jx-nav">
             <a class="@Active("Home")" asp-controller="Home" asp-action="Index">Inicio</a>
+            <a class="@Active("Content")" asp-controller="Content" asp-action="Index">Contenido</a>
             <a class="@Active("Sources")" asp-controller="Sources" asp-action="Index">Fuentes</a>
             @if (User.Identity?.IsAuthenticated == true)
             {
@@ -54,7 +55,8 @@
     @if (ViewData["Wide"] is not true)
     {
         <footer class="jx-footer">
-            <span>Jason Inc.</span>
+            <span>Jason, proyecto final</span>
+            <span>Programación Avanzada Web SC-701</span>
         </footer>
     }
 

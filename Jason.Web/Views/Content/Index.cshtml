@@ -85,6 +85,10 @@ else
                     @if (card.IsSaved)
                     {
                         <button type="button" class="jx-btn jx-btn-saved jx-btn-sm" disabled>Guardado</button>
+                        @if (isAuthenticated && card.SavedItemId is int savedItemId)
+                        {
+                            <a class="jx-btn jx-btn-out jx-btn-sm" asp-controller="Exchange" asp-action="Share" asp-route-id="@savedItemId">Compartir</a>
+                        }
                     }
                     else if (isAuthenticated)
                     {
@@ -110,10 +114,9 @@ else
     }
 }
 
-<p class="jx-muted jx-content-note">
-    Si aún no hay fichas guardadas, esta pantalla muestra las de las fuentes.
-    @if (!isAuthenticated)
-    {
-        <text>Los visitantes ven los botones Guardar desactivados. <a asp-controller="Account" asp-action="Login">Inicia sesión</a> para guardar.</text>
-    }
-</p>
+@if (!isAuthenticated)
+{
+    <p class="jx-muted jx-content-note">
+        Para guardar fichas necesitas una cuenta. <a asp-controller="Account" asp-action="Login">Inicia sesión</a> para empezar.
+    </p>
+}

@@ -6,20 +6,16 @@ using Jason.Models.Exchange;
 
 namespace Jason.API.Parsers;
 
-
-//Bueno en resumen, este parser es el encargado de parsear el contenido de la fuente en formato XML y devolver una lista de ExportItem.
+// Convierte RSS y Atom (XML) en fichas del formato común (ExportItem), una por cada <item> o <entry>.
 public class XmlContentParser : IContentParser
 {
-    public string Format => "xml"; //aca se define el formato que este parser soporta, en este caso XML
+    public string Format => "xml";
 
-    //definimos el metodo Parse que recibe el contenido de la fuente y el objeto ExportSource, y devuelve una lista de ExportItem
     public IReadOnlyList<ExportItem> Parse(string content, ExportSource source)
     {
-        //aca se define un try catch para capturar cualquier error que pueda ocurrir al parsear el contenido de la fuente
-        //tambien definimos los metodos privados que se usan para parsear el contenido de la fuente, como ReadXml, FindItems, FindLink, FindCategory, ChildValue, FindChild y ElementToDictionary
+        // Un XML mal formado se informa como un error controlado de la API
         try
         {
-            //aca abajo se definen varias variables que se van a usar para parsear el contenido de la fuente
             XDocument document = ReadXml(content);
             List<XElement> xmlItems = FindItems(document);
             List<ExportItem> result = new();
@@ -28,7 +24,7 @@ public class XmlContentParser : IContentParser
             int position = 1;
 
 
-            //este foreach recorre cada elemento XML que se encuentra en la lista de xmlItems y extrae la información relevante para crear un objeto ExportItem
+            // Cada elemento del XML se convierte en una ficha
             foreach (XElement xmlItem in xmlItems) 
             {
                 string? title = ChildValue(xmlItem, "title");

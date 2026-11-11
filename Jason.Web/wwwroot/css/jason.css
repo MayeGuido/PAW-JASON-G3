@@ -469,7 +469,7 @@ a {
         margin-bottom: 0.75rem;
     }
 
-/* ---------- Administración de fuentes (Tramo B) ---------- */
+/* ---------- Administración de fuentes ---------- */
 .jx-source-heading {
     display: flex;
     justify-content: space-between;
@@ -923,7 +923,7 @@ a {
     }
 }
 
-/* ---------- Landing (Tramo C) ---------- */
+/* ---------- Landing ---------- */
 .jx-hero {
     display: grid;
     grid-template-columns: 1.05fr 1fr;
@@ -1016,7 +1016,7 @@ a {
     color: var(--blue);
 }
 
-/* ---------- Contenido: pestañas, filtros y tarjetas (Tramo C) ---------- */
+/* ---------- Contenido: pestañas, filtros y tarjetas ---------- */
 .jx-content-bar {
     display: flex;
     flex-wrap: wrap;
@@ -1233,7 +1233,7 @@ a {
     }
 }
 
-/* ---------- Importar y compartir archivos (tramo D) ---------- */
+/* ---------- Importar y compartir archivos ---------- */
 .jx-title { font-size: 3.4rem; margin: 0 0 0.6rem; }
 .jx-lead { max-width: 42rem; margin-bottom: 2rem; }
 

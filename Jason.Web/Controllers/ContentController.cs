@@ -160,6 +160,7 @@ public class ContentController : Controller
             card.SourceName = saved.SourceName;
             card.Item = item;
             card.IsSaved = true;
+            card.SavedItemId = saved.Id;
             cards.Add(card);
         }
 

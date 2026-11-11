@@ -46,6 +46,9 @@ public class ContentCardViewModel
     public ExportItem Item { get; set; } = new();
     public bool IsSaved { get; set; }
 
+    // Id de la fila en SourceItems. Solo lo tienen las fichas que vienen de la pestaña Guardados.
+    public int? SavedItemId { get; set; }
+
     // El contenido viene de APIs externas: solo se enlazan URLs http o https (nunca javascript: u otras)
     public string? SafeUrl => ToSafeUrl(Item.Url);
     public string? SafeThumbnail => ToSafeUrl(Item.Thumbnail);

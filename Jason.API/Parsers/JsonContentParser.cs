@@ -3,8 +3,8 @@ using Jason.API.Exceptions;
 using Jason.Models.Exchange;
 
 namespace Jason.API.Parsers;
-//aca pasa lo mismo que con el parse de xml, este parser es el encargado de parsear el contenido de la fuente, en este caso json,
-//y devolver una lista de ExportItem que es lo que se va a devolver al usuario final
+
+// Convierte la respuesta JSON de una fuente en fichas del formato común (ExportItem).
 public class JsonContentParser : IContentParser
 {
     public string Format => "json";

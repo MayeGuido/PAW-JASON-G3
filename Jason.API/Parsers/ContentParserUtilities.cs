@@ -12,7 +12,7 @@ namespace Jason.API.Parsers;
 // La idea es evitar copiar la misma lógica en JSON, XML y HTML
 internal static class ContentParserUtilities
 {
-    //bueno este metodo es para leer un string si no lo encuentra busca en "properties", "attributes" o "fields"
+    // Lee un texto del item probando varios nombres posibles. Si no lo encuentra, busca también dentro de "properties", "attributes" o "fields".
     public static string? ReadString(JsonElement item, params string[] possibleNames) 
     {
         JsonElement value; 
@@ -114,21 +114,19 @@ internal static class ContentParserUtilities
         return Convert.ToHexString(hash, 0, 10).ToLowerInvariant();
     }
 
-    //aqui asignamos un metodo en donde ponga un id unico, si el id ya existe le agrega un numero al final para que sea unico
-    public static string UniqueId(string id, HashSet<string> usedIds) //dentro del parentisis creamos unos parametros, el primero es un string llamado id y el segundo es un HashSet de string llamado usedIds
+    // Devuelve un id que no se repita dentro de la fuente: si ya se usó, le agrega un número al final (-2, -3...).
+    public static string UniqueId(string id, HashSet<string> usedIds)
     {
-        //definimos las variables baseId,result y copunumbrer
         string baseId = string.IsNullOrWhiteSpace(id) ? StableId(Guid.NewGuid().ToString()) : id.Trim();
         string result = baseId;
         int copyNumber = 2;
 
-        while (usedIds.Contains(result)) //bueno aca creamos este loop que basicamente dice que mientras el usedIds contenga el result
-                                         //entonces el result va a ser igual al baseId mas un guion y el copyNumber,  
+        while (usedIds.Contains(result))
         {
             result = baseId + "-" + copyNumber;
-            copyNumber++; //aca el el copyNumber se va a ir incrementando en 1
+            copyNumber++;
         }
-        //finalmente si no esta en el usedIds, lo agrega y retorna el result
+        // Se registra el id para que el siguiente item no lo repita
         usedIds.Add(result);
         return result;
     }
@@ -232,14 +230,9 @@ internal static class ContentParserUtilities
         return false;
     }
 
-    // Bueno este método es un poco raro, pero en si
-    // básicamente convierte un JsonElement a texto, dependiendo de su tipo.
+    // Convierte un valor JSON simple (texto, número o booleano) a texto. Cualquier otro tipo devuelve null.
     private static string? ConvertToText(JsonElement value)
     {
-        //bueno aca podemos ver que si el valor es un string, lo devuelve como string,
-        //si es un numero lo devuelve como texto,
-        //si es true o false lo devuelve como "true" o "false",
-        //y si no es ninguno de esos casos devuelve null
         if (value.ValueKind == JsonValueKind.String) return value.GetString(); 
         if (value.ValueKind == JsonValueKind.Number) return value.GetRawText();
         if (value.ValueKind == JsonValueKind.True) return "true";
@@ -247,13 +240,13 @@ internal static class ContentParserUtilities
         return null;
     }
 
-    //ahora este metodo en si es para limpiar texto
+    // Normaliza un texto para compararlo: sin espacios en los extremos, en minúsculas y sin tildes.
     private static string CleanText(string? text)
     {
-        if (string.IsNullOrWhiteSpace(text)) // basicamente lo que hace es quitar espacios en blanco, 
-            return string.Empty; //entonces si el texto es nulo o solo tiene espacios en blanco, retorna un string vacio
+        if (string.IsNullOrWhiteSpace(text))
+            return string.Empty;
 
-        return text.Trim().ToLowerInvariant() // basicamente lo que hace es quitar espacios en blanco al inicio y al final del texto, y lo convierte a minusculas
+        return text.Trim().ToLowerInvariant()
             .Replace("á", "a")
             .Replace("é", "e")
             .Replace("í", "i")

@@ -30,8 +30,7 @@ public class ExchangeController : Controller
         _logger = logger;
     }
 
-    // Muestra el panel "archivo para compartir" de una ficha.
-    // TODO: cuando exista Items/Details (tramo C), ese detalle incluye este mismo partial (_SharePanel).
+    // Muestra el panel "archivo para compartir" de una ficha guardada.
     public async Task<IActionResult> Share(int id)
     {
         try

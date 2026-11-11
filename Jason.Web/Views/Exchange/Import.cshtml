@@ -123,8 +123,7 @@
             }
             else
             {
-                @* TODO: la pantalla de contenido (Items/Index) la hace el tramo C; este enlace funciona cuando exista *@
-                <a class="jx-btn jx-btn-dark" asp-controller="Items" asp-action="Index">Ver las fichas importadas</a>
+                <a class="jx-btn jx-btn-dark" asp-controller="Content" asp-action="Index" asp-route-tab="saved">Ver las fichas importadas</a>
             }
         }
     </section>

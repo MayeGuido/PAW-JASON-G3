@@ -293,8 +293,17 @@ public class ExchangeService : IExchangeService
         if (results.IsValid)
             return new List<string>();
 
-        return results.Details
-            .Where(d => !d.IsValid && d.Errors is { Count: > 0 })
+        var failures = results.Details.Where(d => !d.IsValid && d.Errors is { Count: > 0 }).ToList();
+
+        // Cuando un oneOf sí se cumple (por ejemplo category = null), la librería igual deja los errores de la rama que
+        // no coincidió. No son errores reales, así que solo se conservan los de un oneOf que de verdad falló.
+        bool IsNoise(EvaluationResults d) =>
+            d.EvaluationPath.ToString().Contains("/oneOf/", StringComparison.Ordinal)
+            && !failures.Any(f => f.InstanceLocation.ToString() == d.InstanceLocation.ToString()
+                                  && f.EvaluationPath.ToString().EndsWith("/oneOf", StringComparison.Ordinal));
+
+        return failures
+            .Where(d => !IsNoise(d))
             .SelectMany(d => d.Errors!.Values.Select(message =>
             {
                 var path = d.InstanceLocation.ToString() is { Length: > 0 } location ? location : "/";
@@ -317,7 +326,13 @@ public class ExchangeService : IExchangeService
         if (message.StartsWith("Expected", StringComparison.OrdinalIgnoreCase))
             return "el valor no es el esperado (la versión debe ser \"1.0\")";
         if (message.Contains("required", StringComparison.OrdinalIgnoreCase))
-            return "falta un campo obligatorio";
+        {
+            // El mensaje de la librería trae los nombres entre corchetes: "Required properties [createdAt] are not present"
+            var names = System.Text.RegularExpressions.Regex.Match(message, @"\[(.*?)\]").Groups[1].Value.Replace("\"", "").Trim();
+            return names.Length == 0
+                ? "falta un campo obligatorio"
+                : names.Contains(',') ? $"faltan los campos obligatorios {names}" : $"falta el campo obligatorio {names}";
+        }
         if (message.Contains("Value is", StringComparison.OrdinalIgnoreCase) || message.Contains("type", StringComparison.OrdinalIgnoreCase))
             return "el tipo de dato no es el correcto";
         return message.TrimEnd('.');

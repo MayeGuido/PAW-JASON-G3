@@ -45,21 +45,20 @@ public class FeedService : IFeedService
 
 
     // Este método obtiene los datos de todas las fuentes y los devuelve como un objeto DashboardExport
-    public async Task<DashboardExport> GetAsync(CancellationToken cancellationToken = default //aqui le asignamos un valor por defecto al cancellationToken
-    )
+    public async Task<DashboardExport> GetAsync(CancellationToken cancellationToken = default)
     {
-        // Creamos un nuevo objeto DashboardExport y le asignamos la fecha y hora actual en formato UTC
+        // El feed lleva la fecha y hora de captura en UTC
         DashboardExport dashboard = new();
         dashboard.ExportedAt = DateTime.UtcNow;
 
         IEnumerable<Source> sources = await _sourceRepository.ReadAsync();
 
-        foreach (Source source in sources)//aqui hacemos un loop para recorrer todas las fuentes
+        foreach (Source source in sources)
         {
-            ExportSource exportSource = CreateExportSource(source); //le definimos una variable exportSource y le asignamos el resultado de 
+            ExportSource exportSource = CreateExportSource(source);
 
-            try //aqui hacemos un try catch para intentar descargar la fuente y si falla, se registra el problema y se continúa con las demás
-                //esto permite que no se detenga todo un proceso por una sola fuente verdad
+            // Cada fuente se descarga por separado: si una falla, las demás se siguen mostrando
+            try
             {
                 CachedSource cachedSource = await DownloadSource(source, exportSource, cancellationToken);
                 if (!string.IsNullOrWhiteSpace(cachedSource.Format))
@@ -133,8 +132,8 @@ public class FeedService : IFeedService
     }
 
 
-    //Este metodo es uno de los mas importantes, basicamente es el que agrega el secret a la fuente,
-    //si la fuente requiere un secret, este metodo lo agrega al request
+    // Agrega a la petición el secret asociado a la fuente. Según el nombre del secret se manda como
+    // encabezado ("header:Nombre") o como parámetro de la URL ("query:nombre", o api_key si no tiene prefijo).
     private async Task AddSecret(HttpRequestMessage request, Source source)
     {
         SourceSecretValue? secret = await _secretService.GetForSourceAsync(source.Id);

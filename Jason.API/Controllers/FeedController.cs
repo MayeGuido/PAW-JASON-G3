@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Jason.API.Controllers;
 
-// In resume, this controller is responsible for providing the feed data to the client
-// It uses the IFeedService to retrieve the data and returns it as a DashboardExport object.
-
-// so basically this the structures: the user wannna get the feed -> feedcontroller recives the request -> feedcontroller calls feedservice to get the data -> feedservice returns the data to feedcontroller -> feedcontroller returns the data to the user
-
+// Entrega el feed: las fichas de todas las fuentes, ya convertidas al formato común.
+// El controller solo recibe la petición y delega el trabajo en IFeedService.
 [ApiController]
 [Route("api/feed")]
 public class FeedController : ControllerBase
