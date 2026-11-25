@@ -68,7 +68,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient("Feed", client =>
 {
-    client.Timeout = TimeSpan.FromSeconds(20);
+    client.Timeout = TimeSpan.FromSeconds(10);
 });
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")

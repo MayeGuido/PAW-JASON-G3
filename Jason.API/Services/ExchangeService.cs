@@ -219,18 +219,17 @@ public class ExchangeService : IExchangeService
         return result;
     }
 
-    // La fuente se busca por su URL (o por el nombre si el archivo no trae URL). Si no existe, se crea.
-    // En la vista previa no se crea nada: se devuelve null y solo se anota en el resultado.
+    // La fuente se busca por su URL (sin importar mayúsculas ni la barra final) y, si no aparece,
+    // por su nombre: otro grupo puede escribir la misma API con una URL un poco distinta.
+    // Si no existe, se crea. En la vista previa no se crea nada: se devuelve null y solo se anota.
     private async Task<int?> FindOrCreateSourceAsync(ExportSource exportSource, ImportResultDto result, bool preview)
     {
         var url = exportSource.Url?.Trim() ?? string.Empty;
+        var name = exportSource.Name.Trim();
 
-        Source? source;
-        if (url.Length > 0)
-            source = await _sources.FindByUrlAsync(url);
-        else
-            source = (await _sources.ReadAsync()).FirstOrDefault(s =>
-                s.Name.Equals(exportSource.Name, StringComparison.OrdinalIgnoreCase));
+        var known = (await _sources.ReadAsync()).ToList();
+        var source = (url.Length > 0 ? known.FirstOrDefault(s => SameUrl(s.Url, url)) : null)
+            ?? known.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
         if (source is not null)
             return source.Id;
@@ -377,6 +376,17 @@ public class ExchangeService : IExchangeService
             return null;
         var match = ExportCategories.All.FirstOrDefault(c => c.Equals(category.Trim(), StringComparison.OrdinalIgnoreCase));
         return match ?? "otros";
+    }
+
+    private static bool SameUrl(string a, string b) => NormalizeUrl(a) == NormalizeUrl(b);
+
+    private static string NormalizeUrl(string url)
+    {
+        url = url.Trim();
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            return url.TrimEnd('/').ToLowerInvariant();
+
+        return (uri.Scheme + "://" + uri.Authority + uri.AbsolutePath.TrimEnd('/') + uri.Query).ToLowerInvariant();
     }
 
     private static string CleanUrl(string url) => SecretParams.Replace(url, string.Empty).TrimEnd('?', '&');

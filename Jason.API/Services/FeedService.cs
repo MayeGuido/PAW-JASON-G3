@@ -1,6 +1,7 @@
 using System.Text;
 using Jason.API.Options;
 using Jason.API.Parsers;
+using Jason.API.Security;
 using Jason.DataAccess.Repositories;
 using Jason.Models.Entities;
 using Jason.Models.Exchange;
@@ -51,44 +52,69 @@ public class FeedService : IFeedService
         DashboardExport dashboard = new();
         dashboard.ExportedAt = DateTime.UtcNow;
 
-        IEnumerable<Source> sources = await _sourceRepository.ReadAsync();
+        List<Source> sources = (await _sourceRepository.ReadAsync()).ToList();
 
-        foreach (Source source in sources)
+        // Los secrets se leen uno por uno antes de descargar: el contexto de EF no admite
+        // consultas en paralelo y las descargas sí van a correr a la vez.
+        Dictionary<int, SourceSecretValue?> secrets = new();
+        foreach (Source source in sources.Where(s => s.RequiresSecret))
         {
-            ExportSource exportSource = CreateExportSource(source);
-
-            // Cada fuente se descarga por separado: si una falla, las demás se siguen mostrando
             try
             {
-                CachedSource cachedSource = await DownloadSource(source, exportSource, cancellationToken);
-                if (!string.IsNullOrWhiteSpace(cachedSource.Format))
-                    exportSource.Format = cachedSource.Format;
-                exportSource.Items = cachedSource.Items.ToList();
+                secrets[source.Id] = await _secretService.GetForSourceAsync(source.Id);
             }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            catch (Exception exception) when (exception is not OperationCanceledException)
             {
-                throw;
+                _logger.LogWarning(exception, "No se pudo leer el secret de la fuente {SourceId}", source.Id);
             }
-            catch (Exception exception)
-            {
-                // Si una fuente falla, se registra el problema y se continúa con las demás.
-                _logger.LogWarning(exception,
-                    "No se pudo cargar la fuente {SourceId} ({SourceName})", source.Id, source.Name);
-
-                // También recuerda el fallo por un minuto para no insistir inmediatamente
-                // contra una API que está caída.
-                _cache.Set(CreateCacheKey(source), new CachedSource(), TimeSpan.FromMinutes(1));
-            }
-
-            dashboard.Sources.Add(exportSource);
         }
 
+        // Las fuentes se descargan a la vez: una lenta o caída no hace esperar a las demás
+        // y el orden del resultado es el mismo de la tabla Sources.
+        ExportSource[] loaded = await Task.WhenAll(sources.Select(source =>
+            LoadSource(source, secrets.GetValueOrDefault(source.Id), cancellationToken)));
+        dashboard.Sources.AddRange(loaded);
+
         return dashboard;
+    }
+
+    private async Task<ExportSource> LoadSource(
+        Source source,
+        SourceSecretValue? secret,
+        CancellationToken cancellationToken)
+    {
+        ExportSource exportSource = CreateExportSource(source);
+
+        // Cada fuente se descarga por separado: si una falla, las demás se siguen mostrando
+        try
+        {
+            CachedSource cachedSource = await DownloadSource(source, exportSource, secret, cancellationToken);
+            if (!string.IsNullOrWhiteSpace(cachedSource.Format))
+                exportSource.Format = cachedSource.Format;
+            exportSource.Items = cachedSource.Items.ToList();
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception exception)
+        {
+            // Si una fuente falla, se registra el problema y se continúa con las demás.
+            _logger.LogWarning(exception,
+                "No se pudo cargar la fuente {SourceId} ({SourceName})", source.Id, source.Name);
+
+            // También recuerda el fallo por un minuto para no insistir inmediatamente
+            // contra una API que está caída.
+            _cache.Set(CreateCacheKey(source), new CachedSource(), TimeSpan.FromMinutes(1));
+        }
+
+        return exportSource;
     }
 
     private async Task<CachedSource> DownloadSource(
         Source source,
         ExportSource exportSource,
+        SourceSecretValue? secret,
         CancellationToken cancellationToken)
     {
         string cacheKey = CreateCacheKey(source);
@@ -98,13 +124,17 @@ public class FeedService : IFeedService
             return savedInCache;
 
         Uri sourceUrl = ValidateUrl(source.Url);
+
+        // Las fuentes también llegan desde archivos importados: nunca se descargan direcciones internas
+        await PublicAddress.EnsureAsync(sourceUrl, cancellationToken);
+
         using HttpRequestMessage request = new(HttpMethod.Get, sourceUrl);
         request.Headers.UserAgent.ParseAdd("Jason/1.0");
         request.Headers.Accept.ParseAdd(
             "application/json, application/xml, text/xml, text/html;q=0.9, */*;q=0.5");
 
         if (source.RequiresSecret)
-            await AddSecret(request, source);
+            AddSecret(request, source, secret);
 
         HttpClient client = _httpClientFactory.CreateClient("Feed");
         using HttpResponseMessage response = await client.SendAsync(request,
@@ -134,9 +164,8 @@ public class FeedService : IFeedService
 
     // Agrega a la petición el secret asociado a la fuente. Según el nombre del secret se manda como
     // encabezado ("header:Nombre") o como parámetro de la URL ("query:nombre", o api_key si no tiene prefijo).
-    private async Task AddSecret(HttpRequestMessage request, Source source)
+    private static void AddSecret(HttpRequestMessage request, Source source, SourceSecretValue? secret)
     {
-        SourceSecretValue? secret = await _secretService.GetForSourceAsync(source.Id);
         if (secret == null)
         {
             throw new InvalidOperationException(

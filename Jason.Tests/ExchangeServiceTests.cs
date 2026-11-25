@@ -246,6 +246,42 @@ public class ExchangeServiceTests
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse(before.Data!.Value.GetRawText()), JsonNode.Parse(after.Data!.Value.GetRawText())));
     }
 
+    [Theory]
+    [InlineData("https://API.SpaceflightNewsAPI.net/v4/articles/")]
+    [InlineData("https://api.spaceflightnewsapi.net:443/v4/articles")]
+    public async Task Import_FuenteConLaMismaUrlEscritaDistinto_NoSeDuplica(string url)
+    {
+        var file = FileWith(ItemJson("n1", "Nota", "ciencia", "text")).Replace("https://otra.example/api", url);
+
+        var result = await _service.ImportAsync(File(file), preview: false);
+
+        Assert.Empty(result.CreatedSources);
+        Assert.Single(_sources.Data);
+        Assert.Equal(1, _items.Data.Last().SourceId);
+    }
+
+    [Fact]
+    public async Task Import_FuenteConElMismoNombreYOtraUrl_NoSeDuplica()
+    {
+        var file = FileWith(ItemJson("n1", "Nota", "ciencia", "text"))
+            .Replace("Otra fuente", "spaceflight news")
+            .Replace("https://otra.example/api", "https://api.spaceflightnewsapi.net/v4/articles?limit=10");
+
+        var result = await _service.ImportAsync(File(file), preview: false);
+
+        Assert.Empty(result.CreatedSources);
+        Assert.Single(_sources.Data);
+    }
+
+    [Fact]
+    public async Task Import_FuenteDistinta_SiSeCrea()
+    {
+        var result = await _service.ImportAsync(File(FileWith(ItemJson("n1", "Nota", "ciencia", "text"))), preview: false);
+
+        Assert.Equal(new[] { "Otra fuente" }, result.CreatedSources);
+        Assert.Equal(2, _sources.Data.Count);
+    }
+
     // ---------- Ayudas ----------
 
     private static string ItemJson(string id, string title, string category, string mediaType, string createdAt = "2026-10-19T08:00:00Z") =>
