@@ -34,14 +34,14 @@ public class SourcesController : Controller
 
     [HttpPost]
     [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> Create(CreateSourceDto source)
+    public async Task<IActionResult> Create(CreateSourceDto source, string? returnTo)
     {
         if (!ModelState.IsValid)
         {
             TempData["Error"] = string.Join(" ", ModelState.Values
                 .SelectMany(value => value.Errors)
                 .Select(error => error.ErrorMessage));
-            return RedirectToAction(nameof(Index));
+            return BackAfterCreate(returnTo);
         }
 
         try
@@ -59,7 +59,7 @@ public class SourcesController : Controller
             TempData["Error"] = "No se pudo conectar con la API.";
         }
 
-        return RedirectToAction(nameof(Index));
+        return BackAfterCreate(returnTo);
     }
 
     [HttpPost]
@@ -83,4 +83,10 @@ public class SourcesController : Controller
 
         return RedirectToAction(nameof(Index));
     }
+
+    // El formulario también está arriba de la pantalla de contenido: se vuelve a donde se usó
+    private IActionResult BackAfterCreate(string? returnTo) =>
+        returnTo == "content"
+            ? RedirectToAction("Index", "Content")
+            : RedirectToAction(nameof(Index));
 }

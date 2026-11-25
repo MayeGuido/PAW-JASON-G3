@@ -5,6 +5,8 @@
     var es = new System.Globalization.CultureInfo("es");
 }
 
+@await Html.PartialAsync("_AddSourceForm", "content")
+
 <div class="jx-content-bar">
     <div class="jx-tabs" role="tablist" aria-label="Origen de las fichas">
         <a class="@(Model.Tab == "feed" ? "on" : "")" role="tab"

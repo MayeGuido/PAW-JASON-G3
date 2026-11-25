@@ -1,0 +1,53 @@
+@* Formulario para agregar una fuente. Solo lo ve el Admin. El modelo dice a qué pantalla volver: "content" o "sources". *@
+@model string
+@if (User.IsInRole(Roles.Admin))
+{
+    <section class="jx-source-admin" aria-labelledby="add-source-title">
+        <div class="jx-source-admin-title">
+            <div>
+                <p class="jx-eyebrow">Solo Admin</p>
+                <h2 id="add-source-title">Agregar una fuente</h2>
+            </div>
+            <span>El formato se detecta automáticamente</span>
+        </div>
+
+        <form asp-controller="Sources" asp-action="Create" method="post" class="jx-source-form">
+            <input type="hidden" name="returnTo" value="@Model" />
+            <label>
+                <span>Nombre de la fuente</span>
+                <input name="Name" class="jx-input" maxlength="200" placeholder="BBC News" required />
+            </label>
+
+            <label class="jx-source-url-field">
+                <span>Dirección URL</span>
+                <input name="Url" class="jx-input" type="url" maxlength="500"
+                       placeholder="https://ejemplo.com/feed" required />
+            </label>
+
+            <label>
+                <span>Tipo</span>
+                <select name="ComponentType" class="jx-select">
+                    <option value="api">API</option>
+                    <option value="feed">Feed</option>
+                    <option value="widget">Widget</option>
+                </select>
+            </label>
+
+            <label>
+                <span>Requiere secret</span>
+                <select name="RequiresSecret" class="jx-select">
+                    <option value="false">No</option>
+                    <option value="true">Sí</option>
+                </select>
+            </label>
+
+            <button type="submit" class="jx-btn jx-source-add">Agregar fuente</button>
+
+            <label class="jx-source-description-field">
+                <span>Descripción <small>(opcional)</small></span>
+                <input name="Description" class="jx-input" maxlength="500"
+                       placeholder="¿Qué contenido trae esta fuente?" />
+            </label>
+        </form>
+    </section>
+}
